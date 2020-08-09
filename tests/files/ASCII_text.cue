@@ -1,0 +1,22 @@
+TITLE "The Three Musketeers"
+PERFORMER "Bryan Adams, Rod Stewart & Sting"
+REM GENRE "Soundtrack"
+REM DATE 1993
+REM REPLAYGAIN_ALBUM_GAIN -6.35 dB
+REM REPLAYGAIN_ALBUM_PEAK 0.984039
+FILE "01 - All For Love.wav" WAVE
+  TRACK 01 AUDIO
+    TITLE "All For Love"
+    PERFORMER "Bryan Adams, Rod Stewart & Sting"
+    ISRC 000000000000
+    REM REPLAYGAIN_TRACK_GAIN -6.94 dB
+    REM REPLAYGAIN_TRACK_PEAK 0.984039
+    INDEX 01 00:00:00
+FILE "02 - All For Love (instrumental).wav" WAVE
+  TRACK 02 AUDIO
+    TITLE "All For Love (instrumental)"
+    PERFORMER "Bryan Adams, Rod Stewart & Sting"
+    ISRC 000000000000
+    REM REPLAYGAIN_TRACK_GAIN -5.35 dB
+    REM REPLAYGAIN_TRACK_PEAK 0.977600
+    INDEX 01 00:00:00
