@@ -3,6 +3,7 @@
 import argparse
 import os
 from pathlib import Path
+from pprint import pprint
 from subprocess import Popen
 
 from send2trash import send2trash
@@ -494,9 +495,188 @@ def clean_up_jpg_album_art_file_names(directory):
             print("Skipped cleaning up jpg album art file names")
 
 
-# TODO
-def move_album_art_files_to_album_dir():
-    pass
+def find_nested_album_art(directory):
+    """
+    Typical cases:
+
+    #0 - desired layout: album art in the same directory as audio files
+    album:
+        -album art files: cover.jpg etc
+
+    #1 - album art in dedicated sub-directory
+    album:
+        -album_art_dir\
+                    -album art files: cover.jpg etc
+
+    #2 - album art in dedicated directory on the same level as directories with audio files
+    album:
+        -album_art_dir\
+                    -album art files: cover.jpg etc
+        -cd_1\audio files
+        -cd_2\audio files
+
+    #2a - multiple album art directories and art files
+    album:
+        -album_art_dir\
+                    -album art files: cover.jpg etc
+        -cd_1\audio files
+                        -album_art_dir\
+                                    -album art files: cover.jpg etc
+        -cd_2\audio files
+                        -album_art_dir\
+                                    -album art files: cover.jpg etc
+        -some album art files: box_cover.jpg etc
+    """
+    result = {
+        "case1": [],
+        "case2": [],
+    }
+    for subdir, _, files in os.walk(directory):
+        art_files = [f for f in files if Path(f).suffix[1:] == "jpg"]
+        if art_files:
+            audio_files = list(
+                filter(lambda f: Path(f).suffix[1:] in audio_extentions, files)
+            )
+            if not audio_files:
+                path = Path(subdir)
+                # print(f"\n\nFound art folder without audiofiles: {subdir}")
+                parent = path.parent
+                parent_files = [
+                    f
+                    for f in os.listdir(parent)
+                    if os.path.isfile(os.path.join(parent, f))
+                ]
+                if parent_files:
+                    parent_audio_files = list(
+                        filter(
+                            lambda f: Path(f).suffix[1:] in audio_extentions,
+                            parent_files,
+                        )
+                    )
+                    if parent_audio_files:
+                        # print(f"CASE #1: There are audio files in album art parent directory: {parent}\n")
+                        item = {
+                            "art_dir": subdir,
+                            "art_files": art_files,
+                            "parent_dir": parent,
+                        }
+                        result["case1"].append(item)
+                    else:
+                        parent_dirs = [
+                            f
+                            for f in os.listdir(parent)
+                            if not os.path.isfile(os.path.join(parent, f))
+                            and f != path.name
+                        ]
+                        if parent_dirs:
+                            # print(f"CASE #2: There are ONLY directories in album art parent directory: {parent} -> {parent_dirs}\n")
+                            item = {
+                                "art_dir": subdir,
+                                "art_files": art_files,
+                                "parent_dir": parent,
+                            }
+                            result["case2"].append(item)
+                else:
+                    parent_dirs = [
+                        f
+                        for f in os.listdir(parent)
+                        if not os.path.isfile(os.path.join(parent, f))
+                        and f != path.name
+                    ]
+                    if parent_dirs:
+                        # print(f"CASE #2: There are ONLY directories in album art parent directory: {parent} -> {parent_dirs}\n")
+                        item = {
+                            "art_dir": subdir,
+                            "art_files": art_files,
+                            "parent_dir": parent,
+                        }
+                        result["case2"].append(item)
+
+    return result
+
+
+def move_album_art_files_to_album_dir(directory):
+    art_directories = find_nested_album_art(directory)
+    if art_directories["case1"]:
+        print(
+            f"Let's deal with {len(art_directories['case1'])} album art directories of first type"
+        )
+        decision = prompt(
+            f"Move all art files their parent directory?", ["y", "n", "s", "q"]
+        )
+        if decision == "y":
+            for art_dir in art_directories["case1"]:
+                subdir = art_dir["art_dir"]
+                parent = art_dir["parent_dir"]
+                for filename in art_dir["art_files"]:
+                    ext = Path(filename).suffix
+                    name = Path(filename).name.replace(ext, "")
+                    old_path = os.path.join(subdir, filename)
+                    new_path = os.path.join(parent, filename)
+                    if name.isdigit():
+                        print(
+                            f"Numeric art file name: {name} will rename to 'booklet-{filename}'"
+                        )
+                        new_path = os.path.join(parent, f"booklet-{filename}")
+                    if os.path.exists(new_path):
+                        print(f"File already exists: {new_path}")
+                        old_size = Path(new_path).stat().st_size // 8
+                        new_size = Path(old_path).stat().st_size // 8
+                        if old_size != new_size:
+                            replace_decision = prompt(
+                                f"Replace '{new_path}' ({new_size} bytes) with '{old_path}' ({old_size} bytes)?",
+                                ["d", "y", "n", "s", "q"],
+                            )
+                            if replace_decision == "y":
+                                try:
+                                    print(f"Moved '{new_path}' to trashbin")
+                                    send2trash(new_path)
+                                    os.rename(old_path, new_path)
+                                    print(f"Moved '{old_path}' to '{new_path}'")
+                                except OSError as err:
+                                    print(err)
+                            elif replace_decision == "d":
+                                send2trash(old_path)
+                                print(f"Moved '{old_path}' to trashbin")
+                            elif replace_decision == "q":
+                                print("Quit")
+                                exit(0)
+                            elif replace_decision == "s":
+                                print("Skip this step")
+                                return
+                            else:
+                                continue
+                        else:
+                            send2trash(old_path)
+                            print(
+                                f"Moved '{old_path}' to trashbin as it's the same size as the file with the same name in the parent directory"
+                            )
+                    else:
+                        try:
+                            os.rename(old_path, new_path)
+                        except OSError as err:
+                            print(err)
+
+                leftover_files = [
+                    f
+                    for f in os.listdir(subdir)
+                    if os.path.isfile(os.path.join(subdir, f))
+                ]
+                if not leftover_files:
+                    send2trash(subdir)
+                    print(f"Moved empty art dir '{subdir}' to trashbin")
+                else:
+                    print(
+                        f"There are still files in art dir '{subdir}': {leftover_files}"
+                    )
+        elif decision == "q":
+            print("Quit")
+            exit(0)
+        elif decision == "s":
+            print("Skip this step")
+            return
+    else:
+        print("No album art directories of first type! :)")
 
 
 def process_command(command, *, stdout=None):
@@ -526,6 +706,41 @@ def find_cue_files_and_audio_files(directory):
             result.append(cue_dir)
 
     return result
+
+
+def find_empty_directories(directory):
+    result = []
+    for subdir, _, files in os.walk(directory):
+        if not files:
+            child_dirs = [
+                f for f in os.listdir(subdir) if os.path.isdir(os.path.join(subdir, f))
+            ]
+            if not child_dirs:
+                result.append(subdir)
+    return sorted(result)
+
+
+def delete_empty_directories(directory):
+    empty_dirs = find_empty_directories(directory)
+    if empty_dirs:
+        print(f"Found {len(empty_dirs)} empty directories.")
+        print("\n".join(empty_dirs))
+        decision = prompt("Delete all empty directories?", ["y", "n", "s", "q"])
+        if decision == "y":
+            for subdir in empty_dirs:
+                try:
+                    send2trash(subdir)
+                    print(f"Moved '{subdir}' to trashbin")
+                except OSError as err:
+                    print(err)
+        elif decision == "s":
+            print("Skip this step")
+            return
+        elif decision == "q":
+            print("Quit")
+            exit(0)
+    else:
+        print("No empty directories found")
 
 
 def what_to_do_with_cue(directory):
@@ -769,23 +984,3 @@ def what_to_do_with_cue(directory):
             exit(0)
         else:
             print("Skipped cleaning up directories with cue files")
-
-
-def main(directory):
-    delete_extra_files(directory)
-    delete_extra_text_files(directory)
-    lower_extentions(directory)
-    change_extensions(directory)
-    non_audio_files_to_lower_case(directory)
-    replace_spaces_with_underscores(directory)
-    convert_album_art_to_jpg(directory)
-    what_to_do_with_cue(directory)
-    clean_up_jpg_album_art_file_names(directory)
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-d", "--dir", help="dir to organise")
-    args = parser.parse_args()
-    directory = args.dir
-    main(directory)
