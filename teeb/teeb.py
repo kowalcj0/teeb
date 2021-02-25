@@ -464,7 +464,7 @@ def clean_up_jpg_album_art_file_names(directory):
                                 num = prompt(
                                     f"Choose suggestion for {filename}?",
                                     ["n", "s", "q"]
-                                    + [str(n) for n in range(1, len(suggestions)+1)],
+                                    + [str(n) for n in range(1, len(suggestions) + 1)],
                                 )
                                 if num not in ["n", "q"]:
                                     num = int(num) - 1
