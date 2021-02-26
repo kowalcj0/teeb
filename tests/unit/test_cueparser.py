@@ -29,7 +29,7 @@ def test_multiple_files_multiple_tracks(multiple_files_multiple_tracks):
         assert track["FILE"]
     # assert same FILE for track 1 & 2
     assert cue.tracks[0]["FILE"] == cue.tracks[1]["FILE"]
-    # assert different FILE for remaning tracks
+    # assert different FILE for remaining tracks
     assert cue.tracks[0]["FILE"] != cue.tracks[2]["FILE"]
     # assert there are 8 distinct FILE entries for tracks 3-10
     assert len(set(track["FILE"] for track in cue.tracks[2:])) == 8

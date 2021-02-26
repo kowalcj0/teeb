@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import argparse
 import os
 from pathlib import Path
-from pprint import pprint
 from subprocess import Popen
 
 from send2trash import send2trash
@@ -71,11 +69,11 @@ lossless_extensions = [
 def find_extra_files(directory):
     """Find extra files """
     result = []
-    for subdir, dirs, files in os.walk(directory):
+    for sub_dir, directories, files in os.walk(directory):
         for filename in files:
             extension = Path(filename).suffix[1:]
             if extension.lower() in ignored_extensions:
-                filepath = subdir + os.sep + filename
+                filepath = sub_dir + os.sep + filename
                 result.append(filepath)
     return result
 
@@ -107,10 +105,10 @@ def delete_extra_files(directory):
 def find_extra_text_files(directory):
     """Find extra files """
     result = []
-    for subdir, dirs, files in os.walk(directory):
+    for sub_dir, directories, files in os.walk(directory):
         for filename in files:
             if filename.lower() in redundant_text_files:
-                filepath = subdir + os.sep + filename
+                filepath = sub_dir + os.sep + filename
                 result.append(filepath)
     return result
 
@@ -141,11 +139,11 @@ def delete_extra_text_files(directory):
 
 def find_files_with_upper_case_extention(directory):
     result = []
-    for subdir, dirs, files in os.walk(directory):
+    for sub_dir, directories, files in os.walk(directory):
         for filename in files:
             extension = Path(filename).suffix[1:]
             if extension.lower() != extension:
-                filepath = subdir + os.sep + filename
+                filepath = sub_dir + os.sep + filename
                 result.append(filepath)
     return result
 
@@ -178,14 +176,13 @@ def lower_extentions(directory):
 
 def find_non_audio_files_with_upper_case_characters(directory):
     result = []
-    for subdir, dirs, files in os.walk(directory):
+    for sub_dir, directories, files in os.walk(directory):
         for filename in files:
             extension = Path(filename).suffix[1:]
-            if (
-                extension.lower() not in audio_extentions
-                and filename.lower() != filename
-            ):
-                filepath = subdir + os.sep + filename
+            not_an_audio_file = extension.lower() not in audio_extentions
+            same_as_to_lower = filename.lower() != filename
+            if not_an_audio_file and same_as_to_lower:
+                filepath = sub_dir + os.sep + filename
                 result.append(filepath)
     return result
 
@@ -220,11 +217,11 @@ def non_audio_files_to_lower_case(directory):
 
 def find_files_to_change_extension(directory):
     result = []
-    for subdir, dirs, files in os.walk(directory):
+    for sub_dir, directories, files in os.walk(directory):
         for filename in files:
             extension = Path(filename).suffix[1:]
             if extension.lower() in change_extension_mapping.keys():
-                filepath = subdir + os.sep + filename
+                filepath = sub_dir + os.sep + filename
                 result.append(filepath)
     return result
 
@@ -235,7 +232,8 @@ def change_extensions(directory):
         print(f"No files found to change extensions in: {directory}")
     else:
         print(
-            f"Found {len(filepaths)} files to change extensions: {change_extension_mapping}"
+            f"Found {len(filepaths)} files to change extensions: "
+            f"{change_extension_mapping}"
         )
         for path in filepaths:
             print(path)
@@ -258,18 +256,18 @@ def change_extensions(directory):
             print("Skipped changing extensions")
 
 
-def find_dirs_and_files_with_white_spaces(directory):
+def find_directories_and_files_with_white_spaces(directory):
     result = []
-    for subdir, dirs, files in os.walk(directory):
+    for sub_dir, directories, files in os.walk(directory):
         for filename in files:
-            filepath = subdir + os.sep + filename
+            filepath = sub_dir + os.sep + filename
             if " " in filepath:
                 result.append(filepath)
     return result
 
 
 def replace_spaces_with_underscores(directory):
-    filepaths = find_dirs_and_files_with_white_spaces(directory)
+    filepaths = find_directories_and_files_with_white_spaces(directory)
     if not filepaths:
         print(f"No directories or files with white spaces found in: {directory}")
     else:
@@ -277,7 +275,7 @@ def replace_spaces_with_underscores(directory):
         for path in filepaths:
             print(path)
 
-        decision = prompt("Replace all white spaces with underscores?", ["y", "n", "q"])
+        decision = prompt("Replace white spaces with underscores?", ["y", "n", "q"])
         if decision == "y":
             for path, folders, files in os.walk(directory):
                 for filename in files:
@@ -305,11 +303,11 @@ def replace_spaces_with_underscores(directory):
 
 def find_album_art_files_to_convert(directory):
     result = []
-    for subdir, dirs, files in os.walk(directory):
+    for sub_dir, directories, files in os.walk(directory):
         for filename in files:
             extension = Path(filename).suffix[1:]
             if extension.lower() in album_art_extentions_to_convert:
-                filepath = subdir + os.sep + filename
+                filepath = sub_dir + os.sep + filename
                 result.append(filepath)
     return result
 
@@ -344,7 +342,7 @@ def convert_album_art_to_jpg(directory):
 
 def find_album_art_jpg_files(directory):
     result = []
-    for subdir, _, files in os.walk(directory):
+    for sub_dir, _, files in os.walk(directory):
         for file in files:
             extension = Path(file).suffix[1:]
             filename = Path(file).name
@@ -433,7 +431,7 @@ def clean_up_jpg_album_art_file_names(directory):
             "Proceed with album art file name change suggestions?", ["y", "n", "q"]
         )
         if decision == "y":
-            for subdir, _, files in os.walk(directory):
+            for sub_dir, _, files in os.walk(directory):
                 album_art_files = []
                 for file in files:
                     extension = Path(file).suffix[1:]
@@ -443,7 +441,7 @@ def clean_up_jpg_album_art_file_names(directory):
                         if suggestions:
                             album_art_files.append((file, suggestions))
                 if album_art_files:
-                    print(f"\n\nSuggestions for album art in: {subdir}")
+                    print(f"\n\nSuggestions for album art in: {sub_dir}")
                     for filename, suggestions in album_art_files:
                         if len(suggestions) == 1:
                             print(f"    {filename} -> {suggestions[0]}")
@@ -461,10 +459,12 @@ def clean_up_jpg_album_art_file_names(directory):
                     if decision == "y":
                         for filename, suggestions in album_art_files:
                             if len(suggestions) > 1:
+                                options = ["n", "s", "q"]
+                                options.extend(
+                                    [str(n) for n in range(1, len(suggestions) + 1)]
+                                )
                                 num = prompt(
-                                    f"Choose suggestion for {filename}?",
-                                    ["n", "s", "q"]
-                                    + [str(n) for n in range(1, len(suggestions) + 1)],
+                                    f"Choose suggestion for {filename}?", options
                                 )
                                 if num not in ["n", "q"]:
                                     num = int(num) - 1
@@ -477,8 +477,8 @@ def clean_up_jpg_album_art_file_names(directory):
                                     exit(0)
                             else:
                                 suggestion = suggestions[0]
-                            old_path = os.path.join(subdir, filename)
-                            new_path = os.path.join(subdir, suggestion)
+                            old_path = os.path.join(sub_dir, filename)
+                            new_path = os.path.join(sub_dir, suggestion)
                             if os.path.exists(new_path):
                                 print(f"File already exists: {new_path}")
                             else:
@@ -515,7 +515,7 @@ def find_nested_album_art(directory):
         -album_art_dir\
                     -album art files: cover.jpg etc
 
-    #2 - album art in dedicated directory on the same level as directories with audio files
+    #2 - album art in a directory on the same level as directories with audio files
     album:
         -album_art_dir\
                     -album art files: cover.jpg etc
@@ -534,19 +534,24 @@ def find_nested_album_art(directory):
                                     -album art files: cover.jpg etc
         -some album art files: box_cover.jpg etc
     """
+
+    def case2(path, parent, f) -> bool:
+        is_file = os.path.isfile(os.path.join(parent, f))
+        return not is_file and f != path.name
+
     result = {
         "case1": [],
         "case2": [],
     }
-    for subdir, _, files in os.walk(directory):
+    for sub_dir, _, files in os.walk(directory):
         art_files = [f for f in files if Path(f).suffix[1:] == "jpg"]
         if art_files:
             audio_files = list(
                 filter(lambda f: Path(f).suffix[1:] in audio_extentions, files)
             )
             if not audio_files:
-                path = Path(subdir)
-                # print(f"\n\nFound art folder without audiofiles: {subdir}")
+                path = Path(sub_dir)
+                # print(f"\n\nFound art folder without audio files: {sub_dir}")
                 parent = path.parent
                 parent_files = [
                     f
@@ -561,39 +566,43 @@ def find_nested_album_art(directory):
                         )
                     )
                     if parent_audio_files:
-                        # print(f"CASE #1: There are audio files in album art parent directory: {parent}\n")
+                        print(
+                            f"CASE #1: There are audio files in album art "
+                            f"parent directory: {parent}\n"
+                        )
                         item = {
-                            "art_dir": subdir,
+                            "art_dir": sub_dir,
                             "art_files": art_files,
                             "parent_dir": parent,
                         }
                         result["case1"].append(item)
                     else:
-                        parent_dirs = [
-                            f
-                            for f in os.listdir(parent)
-                            if not os.path.isfile(os.path.join(parent, f))
-                            and f != path.name
+                        parent_directories = [
+                            f for f in os.listdir(parent) if case2(path, parent, f)
                         ]
-                        if parent_dirs:
-                            # print(f"CASE #2: There are ONLY directories in album art parent directory: {parent} -> {parent_dirs}\n")
+                        if parent_directories:
+                            # print(
+                            #     f"CASE #2: There are ONLY directories in album art "
+                            #     f"parent directory: {parent} -> {parent_directories}"
+                            #     "\n"
+                            # )
                             item = {
-                                "art_dir": subdir,
+                                "art_dir": sub_dir,
                                 "art_files": art_files,
                                 "parent_dir": parent,
                             }
                             result["case2"].append(item)
                 else:
-                    parent_dirs = [
-                        f
-                        for f in os.listdir(parent)
-                        if not os.path.isfile(os.path.join(parent, f))
-                        and f != path.name
+                    parent_directories = [
+                        f for f in os.listdir(parent) if case2(path, parent, f)
                     ]
-                    if parent_dirs:
-                        # print(f"CASE #2: There are ONLY directories in album art parent directory: {parent} -> {parent_dirs}\n")
+                    if parent_directories:
+                        # print(
+                        #     f"CASE #2: There are ONLY directories in album art "
+                        #     f"parent directory: {parent} -> {parent_directories}\n"
+                        # )
                         item = {
-                            "art_dir": subdir,
+                            "art_dir": sub_dir,
                             "art_files": art_files,
                             "parent_dir": parent,
                         }
@@ -606,23 +615,25 @@ def move_album_art_files_to_album_dir(directory):
     art_directories = find_nested_album_art(directory)
     if art_directories["case1"]:
         print(
-            f"Let's deal with {len(art_directories['case1'])} album art directories of first type"
+            f"Let's deal with {len(art_directories['case1'])} album art directories "
+            "of first type"
         )
         decision = prompt(
-            f"Move all art files their parent directory?", ["y", "n", "s", "q"]
+            "Move all album art files to parent directory?", ["y", "n", "s", "q"]
         )
         if decision == "y":
             for art_dir in art_directories["case1"]:
-                subdir = art_dir["art_dir"]
+                sub_dir = art_dir["art_dir"]
                 parent = art_dir["parent_dir"]
                 for filename in art_dir["art_files"]:
                     ext = Path(filename).suffix
                     name = Path(filename).name.replace(ext, "")
-                    old_path = os.path.join(subdir, filename)
+                    old_path = os.path.join(sub_dir, filename)
                     new_path = os.path.join(parent, filename)
                     if name.isdigit():
                         print(
-                            f"Numeric art file name: {name} will rename to 'booklet-{filename}'"
+                            f"Numeric art file name: {name} will rename to "
+                            f"'booklet-{filename}'"
                         )
                         new_path = os.path.join(parent, f"booklet-{filename}")
                     if os.path.exists(new_path):
@@ -631,7 +642,8 @@ def move_album_art_files_to_album_dir(directory):
                         new_size = Path(old_path).stat().st_size // 8
                         if old_size != new_size:
                             replace_decision = prompt(
-                                f"Replace '{new_path}' ({new_size} bytes) with '{old_path}' ({old_size} bytes)?",
+                                f"Replace '{new_path}' ({new_size} bytes) with "
+                                f"'{old_path}' ({old_size} bytes)?",
                                 ["d", "y", "n", "s", "q"],
                             )
                             if replace_decision == "y":
@@ -656,7 +668,9 @@ def move_album_art_files_to_album_dir(directory):
                         else:
                             send2trash(old_path)
                             print(
-                                f"Moved '{old_path}' to trashbin as it's the same size as the file with the same name in the parent directory"
+                                f"Moved '{old_path}' to trashbin as it's the same "
+                                "size as the file with the same name in the parent "
+                                "directory"
                             )
                     else:
                         try:
@@ -666,15 +680,16 @@ def move_album_art_files_to_album_dir(directory):
 
                 leftover_files = [
                     f
-                    for f in os.listdir(subdir)
-                    if os.path.isfile(os.path.join(subdir, f))
+                    for f in os.listdir(sub_dir)
+                    if os.path.isfile(os.path.join(sub_dir, f))
                 ]
                 if not leftover_files:
-                    send2trash(subdir)
-                    print(f"Moved empty art dir '{subdir}' to trashbin")
+                    send2trash(sub_dir)
+                    print(f"Moved empty art dir '{sub_dir}' to trashbin")
                 else:
                     print(
-                        f"There are still files in art dir '{subdir}': {leftover_files}"
+                        f"There are still files in album art directory '{sub_dir}': "
+                        f"{leftover_files}"
                     )
         elif decision == "q":
             print("Quit")
@@ -699,14 +714,14 @@ def process_command(command, *, stdout=None):
 
 def find_cue_files_and_audio_files(directory):
     result = []
-    for subdir, _, files in os.walk(directory):
+    for sub_dir, _, files in os.walk(directory):
         cues = [f for f in files if Path(f).suffix[1:] == "cue"]
         if cues:
             audio_files = list(
                 filter(lambda f: Path(f).suffix[1:] in audio_extentions, files)
             )
             cue_dir = {
-                "dir": subdir,
+                "dir": sub_dir,
                 "cues": cues,
                 "audio_files": audio_files,
             }
@@ -717,27 +732,29 @@ def find_cue_files_and_audio_files(directory):
 
 def find_empty_directories(directory):
     result = []
-    for subdir, _, files in os.walk(directory):
+    for sub_dir, _, files in os.walk(directory):
         if not files:
-            child_dirs = [
-                f for f in os.listdir(subdir) if os.path.isdir(os.path.join(subdir, f))
+            child_directories = [
+                f
+                for f in os.listdir(sub_dir)
+                if os.path.isdir(os.path.join(sub_dir, f))
             ]
-            if not child_dirs:
-                result.append(subdir)
+            if not child_directories:
+                result.append(sub_dir)
     return sorted(result)
 
 
 def delete_empty_directories(directory):
-    empty_dirs = find_empty_directories(directory)
-    if empty_dirs:
-        print(f"Found {len(empty_dirs)} empty directories.")
-        print("\n".join(empty_dirs))
+    empty_directories = find_empty_directories(directory)
+    if empty_directories:
+        print(f"Found {len(empty_directories)} empty directories.")
+        print("\n".join(empty_directories))
         decision = prompt("Delete all empty directories?", ["y", "n", "s", "q"])
         if decision == "y":
-            for subdir in empty_dirs:
+            for sub_dir in empty_directories:
                 try:
-                    send2trash(subdir)
-                    print(f"Moved '{subdir}' to trashbin")
+                    send2trash(sub_dir)
+                    print(f"Moved '{sub_dir}' to trashbin")
                 except OSError as err:
                     print(err)
         elif decision == "s":
@@ -751,12 +768,12 @@ def delete_empty_directories(directory):
 
 
 def what_to_do_with_cue(directory):
-    cue_dirs = find_cue_files_and_audio_files(directory)
-    if not cue_dirs:
+    cue_directories = find_cue_files_and_audio_files(directory)
+    if not cue_directories:
         print(f"No cue files found in: {directory}")
     else:
-        single_cue = [d for d in cue_dirs if len(d["cues"]) == 1]
-        multi_cue = [d for d in cue_dirs if len(d["cues"]) > 1]
+        single_cue = [d for d in cue_directories if len(d["cues"]) == 1]
+        multi_cue = [d for d in cue_directories if len(d["cues"]) > 1]
         print(
             f"Found {len(single_cue)} directories with single cue file & "
             f"{len(multi_cue)} directories with more than 1 cue file"
@@ -766,7 +783,8 @@ def what_to_do_with_cue(directory):
             print("Let's start with directories containing more than 1 cue file")
             for cue_dir in multi_cue:
                 print(
-                    f"\n\nThere are {len(cue_dir['audio_files'])} audio files in {cue_dir['dir']} and {len(cue_dir['cues'])} CUE files"
+                    f"\n\nThere are {len(cue_dir['audio_files'])} audio files in "
+                    f"{cue_dir['dir']} and {len(cue_dir['cues'])} CUE files"
                 )
                 for f in sorted(cue_dir["audio_files"]):
                     print(f"* {f}")
@@ -775,7 +793,8 @@ def what_to_do_with_cue(directory):
                     cue = CueParser(cue_path)
                     if "FILE" in cue.meta:
                         print(
-                            f"'{cue_file}' refers to {len(cue.tracks)} tracks in 1 file: {cue.meta['FILE']}"
+                            f"'{cue_file}' refers to {len(cue.tracks)} tracks in 1 "
+                            f"file: {cue.meta['FILE']}"
                         )
                     else:
                         print(
@@ -830,7 +849,8 @@ def what_to_do_with_cue(directory):
                                 )
                                 if not os.path.exists(cue_audio_file_path):
                                     print(
-                                        f"Couldn't find audio file '{cue_audio_file}' specified in '{cue_file}'"
+                                        f"Couldn't find audio file '{cue_audio_file}'"
+                                        f" specified in '{cue_file}'"
                                     )
                                     for audio_file in cue_dir["audio_files"]:
                                         delete_entry_audio_file = prompt(
@@ -843,12 +863,14 @@ def what_to_do_with_cue(directory):
                                             )
                                             send2trash(audio_file_path)
                                             print(
-                                                f"Successfully deleted audio source file: {audio_file}"
+                                                "Successfully deleted audio source "
+                                                f"file: {audio_file}"
                                             )
                                 else:
                                     send2trash(cue_audio_file_path)
                                     print(
-                                        f"Successfully deleted audio source file: {cue_audio_file}"
+                                        "Successfully deleted audio source file: "
+                                        f"{cue_audio_file}"
                                     )
                                     send2trash(cue_path)
                                     print(f"Successfully deleted cue file: {cue_file}")
@@ -876,10 +898,9 @@ def what_to_do_with_cue(directory):
                 cue_file = cue_dir["cues"][0]
                 cue_path = os.path.join(cue_dir["dir"], cue_file)
                 cue = CueParser(cue_path)
-                if (
-                    len(cue_dir["audio_files"]) == len(cue.tracks)
-                    and len(cue_dir["audio_files"]) > min_audio_files
-                ):
+                files_equal_tracks = len(cue_dir["audio_files"]) == len(cue.tracks)
+                more_files_than_min = len(cue_dir["audio_files"]) > min_audio_files
+                if files_equal_tracks and more_files_than_min:
                     cues_to_delete.append(cue_dir)
                 else:
                     cues_to_split.append(cue_dir)
@@ -894,14 +915,15 @@ def what_to_do_with_cue(directory):
                     cue_path = os.path.join(cue_dir["dir"], cue_file)
                     cue = CueParser(cue_path)
                     print(
-                        f"\n\nThere are {len(cue_dir['audio_files'])} audio files in {cue_dir['dir']}"
+                        f"\n\nThere are {len(cue_dir['audio_files'])} audio files in "
+                        f"{cue_dir['dir']}"
                     )
                     for f in sorted(cue_dir["audio_files"]):
                         print(f"* {f}")
                     print(
                         "CUE Titles:\n*",
                         "\n* ".join(
-                            f'{t.get("TRACK_NUM")} - {t.get("TITLE", "NO TITLE ENTRY!!!")}'
+                            f'{t.get("TRACK_NUM")} - {t.get("TITLE", "NO TITLE ENTRY")}'
                             for t in sorted(cue.tracks, key=lambda t: t["TRACK_NUM"])
                         ),
                     )
@@ -931,18 +953,20 @@ def what_to_do_with_cue(directory):
                         f"'{cue_dir['audio_files'][0]}' in '{cue_dir['dir']}'"
                     )
                     print(
-                        f"Looks like it should be split into {len(cue.tracks)} tracks defined in '{cue_file}':"
+                        f"Looks like it should be split into {len(cue.tracks)} tracks "
+                        f"defined in '{cue_file}':"
                     )
                     print(
                         "CUE Tracks:\n*",
                         "\n* ".join(
-                            f'{t.get("TRACK_NUM")} - {t.get("TITLE", "NO TITLE ENTRY!!!")}'
+                            f'{t.get("TRACK_NUM")} - {t.get("TITLE", "NO TITLE ENTRY")}'
                             for t in sorted(cue.tracks, key=lambda t: t["TRACK_NUM"])
                         ),
                     )
 
                 cue_decision = prompt(
-                    "Do you want to split all of those cue files with Flacon and delete them afterwards?",
+                    "Would you like to split those cue files with Flacon and delete "
+                    "them afterwards?",
                     ["p", "s", "q"],
                 )
 
@@ -964,13 +988,15 @@ def what_to_do_with_cue(directory):
                             if os.path.exists(cue_audio_file_path):
                                 send2trash(cue_audio_file_path)
                                 print(
-                                    f"Successfully deleted audio source file: {cue_audio_file}"
+                                    "Successfully deleted audio source file: "
+                                    f"{cue_audio_file}"
                                 )
                                 send2trash(cue_path)
                                 print(f"Successfully deleted cue file: {cue_file}")
                             else:
                                 print(
-                                    f"Couldn't find audio file '{cue_audio_file}' specified in '{cue_file}'"
+                                    f"Couldn't find audio file '{cue_audio_file}' "
+                                    f"specified in '{cue_file}'"
                                 )
                                 for audio_file in cue_dir["audio_files"]:
                                     audio_file_path = os.path.join(
@@ -978,7 +1004,8 @@ def what_to_do_with_cue(directory):
                                     )
                                     send2trash(audio_file_path)
                                     print(
-                                        f"Successfully deleted audio source file: {audio_file}"
+                                        "Successfully deleted audio source file: "
+                                        f"{audio_file}"
                                     )
                                     send2trash(cue_path)
                                     print(f"Successfully deleted cue file: {cue_file}")
