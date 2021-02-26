@@ -14,8 +14,8 @@ clean:
 .PHONY: lint
 lint:
 	flake8
-	pylint
-	mypy
+	pylint **/*.py
+	mypy **/*.py
 
 .PHONY: format
 format:
