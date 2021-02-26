@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import os
+import sys
 from pathlib import Path
 from subprocess import Popen
 
@@ -97,7 +98,7 @@ def delete_extra_files(directory):
             print("Deleted all extra files")
         elif decision == "q":
             print("Quit")
-            exit(0)
+            sys.exit(0)
         else:
             print("Skipped deleting extra files")
 
@@ -132,7 +133,7 @@ def delete_extra_text_files(directory):
             print("Deleted all extra text files")
         elif decision == "q":
             print("Quit")
-            exit(0)
+            sys.exit(0)
         else:
             print("Skipped deleting extra text files")
 
@@ -169,7 +170,7 @@ def lower_extentions(directory):
             print("Changed extensions to lower case")
         elif decision == "q":
             print("Quit")
-            exit(0)
+            sys.exit(0)
         else:
             print("Skipped changing extensions to lower case")
 
@@ -210,7 +211,7 @@ def non_audio_files_to_lower_case(directory):
             print("Changed all non-audio file names to lower case")
         elif decision == "q":
             print("Quit")
-            exit(0)
+            sys.exit(0)
         else:
             print("Skipped changing non-audio file names to lower case")
 
@@ -251,7 +252,7 @@ def change_extensions(directory):
             print("Changed all extensions")
         elif decision == "q":
             print("Quit")
-            exit(0)
+            sys.exit(0)
         else:
             print("Skipped changing extensions")
 
@@ -296,7 +297,7 @@ def replace_spaces_with_underscores(directory):
             print("Replaced all white spaces with underscores")
         elif decision == "q":
             print("Quit")
-            exit(0)
+            sys.exit(0)
         else:
             print("Skipped replacing white spaces with underscores")
 
@@ -335,7 +336,7 @@ def convert_album_art_to_jpg(directory):
             print("Converted all album art to jpg")
         elif decision == "q":
             print("Quit")
-            exit(0)
+            sys.exit(0)
         else:
             print("Skipped converting all album art to jpg")
 
@@ -474,7 +475,7 @@ def clean_up_jpg_album_art_file_names(directory):
                                 elif num == "s":
                                     return
                                 else:
-                                    exit(0)
+                                    sys.exit(0)
                             else:
                                 suggestion = suggestions[0]
                             old_path = os.path.join(sub_dir, filename)
@@ -488,7 +489,7 @@ def clean_up_jpg_album_art_file_names(directory):
                                     print(err)
                     elif decision == "q":
                         print("Quit")
-                        exit(0)
+                        sys.exit(0)
                     elif decision == "s":
                         print("Skip this step")
                         return
@@ -497,7 +498,7 @@ def clean_up_jpg_album_art_file_names(directory):
             print("Cleaned up all jpg album art file names")
         elif decision == "q":
             print("Quit")
-            exit(0)
+            sys.exit(0)
         else:
             print("Skipped cleaning up jpg album art file names")
 
@@ -659,7 +660,7 @@ def move_album_art_files_to_album_dir(directory):
                                 print(f"Moved '{old_path}' to trashbin")
                             elif replace_decision == "q":
                                 print("Quit")
-                                exit(0)
+                                sys.exit(0)
                             elif replace_decision == "s":
                                 print("Skip this step")
                                 return
@@ -693,7 +694,7 @@ def move_album_art_files_to_album_dir(directory):
                     )
         elif decision == "q":
             print("Quit")
-            exit(0)
+            sys.exit(0)
         elif decision == "s":
             print("Skip this step")
             return
@@ -762,7 +763,7 @@ def delete_empty_directories(directory):
             return
         elif decision == "q":
             print("Quit")
-            exit(0)
+            sys.exit(0)
     else:
         print("No empty directories found")
 
@@ -876,7 +877,7 @@ def what_to_do_with_cue(directory):
                                     print(f"Successfully deleted cue file: {cue_file}")
                             elif cue_decision == "q":
                                 print("Quit")
-                                exit(0)
+                                sys.exit(0)
                             else:
                                 print(f"Skipped '{cue_file}'")
                                 continue
@@ -884,7 +885,7 @@ def what_to_do_with_cue(directory):
                             print(f"Flacon had some issues with '{cue_path}': {std}")
                     elif cue_decision == "q":
                         print("Quit")
-                        exit(0)
+                        sys.exit(0)
                     else:
                         print(f"Skipped '{cue_path}'")
                         continue
@@ -939,7 +940,7 @@ def what_to_do_with_cue(directory):
                     print(f"Deleted {len(cues_to_delete)} extracted CUE files")
                 elif delete_extracted_cues == "q":
                     print("Quit")
-                    exit(0)
+                    sys.exit(0)
                 else:
                     print(f"Skipped '{cue_file}'")
 
@@ -1013,13 +1014,13 @@ def what_to_do_with_cue(directory):
                             print(f"Flacon had some issues with '{cue_path}': {std}")
                 elif cue_decision == "q":
                     print("Quit")
-                    exit(0)
+                    sys.exit(0)
                 else:
                     print(f"Skipped '{cue_path}'")
 
             print("Cleaned up all directories with cue files")
         elif decision == "q":
             print("Quit")
-            exit(0)
+            sys.exit(0)
         else:
             print("Skipped cleaning up directories with cue files")
