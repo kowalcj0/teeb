@@ -6,7 +6,9 @@ flake8
 flake8-spellcheck
 ipdb
 isort
+mypy
 pip-tools
 pre-commit
 pytest
+pylint
 vulture
