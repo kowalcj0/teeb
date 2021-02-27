@@ -26,6 +26,8 @@ click==7.1.2
     # via
     #   black
     #   pip-tools
+coverage==5.4
+    # via pytest-cov
 decorator==4.4.2
     # via ipython
 distlib==0.3.1
@@ -38,7 +40,7 @@ flake8==3.8.4
     # via
     #   -r requirements_dev.in
     #   flake8-spellcheck
-identify==1.5.14
+identify==1.6.0
     # via pre-commit
 iniconfig==1.1.1
     # via pytest
@@ -46,7 +48,7 @@ ipdb==0.13.4
     # via -r requirements_dev.in
 ipython-genutils==0.2.0
     # via traitlets
-ipython==7.20.0
+ipython==7.21.0
     # via ipdb
 isort==5.7.0
     # via
@@ -106,8 +108,12 @@ pylint==2.7.1
     # via -r requirements_dev.in
 pyparsing==2.4.7
     # via packaging
-pytest==6.2.2
+pytest-cov==2.11.1
     # via -r requirements_dev.in
+pytest==6.2.2
+    # via
+    #   -r requirements_dev.in
+    #   pytest-cov
 pyyaml==5.4.1
     # via pre-commit
 regex==2020.11.13

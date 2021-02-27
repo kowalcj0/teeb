@@ -1,10 +1,11 @@
 
 .PHONY: tests
 tests:
-	pytest tests
+	pytest --cov --cov-append tests
 
 .PHONY: clean
 clean:
+	-rm -fr .coverage*
 	-rm -fr .cache/
 	-rm -fr .pytest_cache/
 	-find . -type d -name "*egg-info" -exec rm -rf {} +

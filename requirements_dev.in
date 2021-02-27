@@ -10,5 +10,6 @@ mypy
 pip-tools
 pre-commit
 pytest
+pytest-cov
 pylint
 vulture
