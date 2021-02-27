@@ -5,6 +5,7 @@ import os
 import sys
 from pathlib import Path
 from subprocess import Popen
+from typing import List, Text
 
 from send2trash import send2trash
 from teeb.cueparser import CueParser
@@ -68,7 +69,7 @@ lossless_extensions = [
 ]
 
 
-def find_extra_files(directory):
+def find_extra_files(directory: Text) -> List[Text]:
     """Find extra files """
     result = []
     for sub_dir, directories, files in os.walk(directory):
