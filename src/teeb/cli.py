@@ -111,7 +111,7 @@ def find_extra_text_files(directory):
     for sub_dir, directories, files in os.walk(directory):
         for filename in files:
             if filename.lower() in redundant_text_files:
-                filepath = sub_dir + os.sep + filename
+                filepath = os.path.join(sub_dir, filename)
                 result.append(filepath)
     return result
 
