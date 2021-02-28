@@ -44,7 +44,7 @@ def album_with_ignored_files(request) -> List[List[tuple]]:
 
 
 def test_find_extra_files_absolute_path(album_with_ignored_files):
-    """Test find_extra_files called with 3 different album paths"""
+    """Test find_extra_files called for every type of album path"""
     for instance in album_with_ignored_files:
         with mock.patch("os.walk", return_value=instance):
             album_path = instance[0][0]
