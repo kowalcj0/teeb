@@ -76,7 +76,7 @@ def find_extra_files(directory: Text) -> List[Text]:
         for filename in files:
             extension = Path(filename).suffix[1:]
             if extension.lower() in ignored_extensions:
-                filepath = sub_dir + os.sep + filename
+                filepath = os.path.join(sub_dir, filename)
                 result.append(filepath)
     return result
 
