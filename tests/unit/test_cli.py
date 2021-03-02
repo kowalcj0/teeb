@@ -4,7 +4,10 @@ from typing import List
 from unittest import mock
 
 import pytest
+
 import teeb.cli
+import teeb.default
+import teeb.find
 
 ABSOLUTE_ALBUM_PATH = "/absolute/path/to/album"
 DOTTED_RELATIVE_ALBUM_PATH = "./album"
@@ -37,7 +40,7 @@ def album_with_ignored_files(request) -> List[List[tuple]]:
             (
                 request.param,
                 [],
-                [f"file.{extension}" for extension in teeb.cli.ignored_extensions],
+                [f"file.{extension}" for extension in teeb.default.ignored_extensions],
             ),
         ]
     ]
@@ -59,7 +62,7 @@ def album_with_extra_text_files(request) -> List[List[tuple]]:
             (
                 request.param,
                 [],
-                [filename for filename in teeb.cli.redundant_text_files],
+                [filename for filename in teeb.default.redundant_text_files],
             ),
         ]
     ]
@@ -70,10 +73,10 @@ def test_find_extra_files(album_with_ignored_files):
     for instance in album_with_ignored_files:
         with mock.patch("os.walk", return_value=instance):
             album_path = instance[0][0]
-            result = teeb.cli.find_extra_files(album_path)
+            result = teeb.find.extra_files(album_path)
             assert result == [
                 os.path.join(album_path, f"file.{extension}")
-                for extension in teeb.cli.ignored_extensions
+                for extension in teeb.default.ignored_extensions
             ]
 
 
@@ -82,8 +85,8 @@ def test_find_extra_text_files(album_with_extra_text_files):
     for instance in album_with_extra_text_files:
         with mock.patch("os.walk", return_value=instance):
             album_path = instance[0][0]
-            result = teeb.cli.find_extra_text_files(album_path)
+            result = teeb.find.extra_text_files(album_path)
             assert result == [
                 os.path.join(album_path, filename)
-                for filename in teeb.cli.redundant_text_files
+                for filename in teeb.default.redundant_text_files
             ]

@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
-from teeb.ansii import ANSIIColor, ANSIIStyle
+from teeb.ansii import (
+    ANSIIColor,
+    ANSIIStyle,
+)
 
 
 def prompt(question: str, options: list) -> str:

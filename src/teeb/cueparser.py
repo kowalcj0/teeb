@@ -49,7 +49,9 @@ class CueParser:
                 if method is not None:
                     method(args)
                 else:
-                    print(f"Unknown command `{command}`. Skipping ...",)
+                    print(
+                        f"Unknown command `{command}`. Skipping ...",
+                    )
 
         for idx, track_data in enumerate(self._context_tracks):
             track_end_pos = None
