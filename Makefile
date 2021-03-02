@@ -21,5 +21,5 @@ lint:
 
 .PHONY: format
 format:
-	isort **/*.py
-	black
+	isort .
+	black .
