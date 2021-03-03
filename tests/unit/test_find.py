@@ -5,7 +5,6 @@ from unittest import mock
 
 import pytest
 
-import teeb.cli
 import teeb.default
 import teeb.find
 

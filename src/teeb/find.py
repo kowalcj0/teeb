@@ -1,28 +1,19 @@
 # -*- coding: utf-8 -*-
 import os
 from pathlib import Path
-from typing import (
-    List,
-    Text,
-)
+from typing import List
 
-from teeb.action import suggest_new_filenames
-from teeb.default import (
-    album_art_extentions_to_convert,
-    audio_extentions,
-    change_extension_mapping,
-    ignored_extensions,
-    redundant_text_files,
-)
+import teeb.default
+import teeb.suggest
 
 
-def extra_files(directory: Text) -> List[Text]:
+def extra_files(directory: str) -> List[str]:
     """Find extra files """
     result = []
     for sub_dir, directories, files in os.walk(directory):
         for filename in files:
             extension = Path(filename).suffix[1:]
-            if extension.lower() in ignored_extensions:
+            if extension.lower() in teeb.default.ignored_extensions:
                 filepath = os.path.join(sub_dir, filename)
                 result.append(filepath)
     return result
@@ -33,7 +24,7 @@ def extra_text_files(directory):
     result = []
     for sub_dir, directories, files in os.walk(directory):
         for filename in files:
-            if filename.lower() in redundant_text_files:
+            if filename.lower() in teeb.default.redundant_text_files:
                 filepath = os.path.join(sub_dir, filename)
                 result.append(filepath)
     return result
@@ -55,7 +46,7 @@ def non_audio_files_with_upper_case_characters(directory):
     for sub_dir, directories, files in os.walk(directory):
         for filename in files:
             extension = Path(filename).suffix[1:]
-            not_an_audio_file = extension.lower() not in audio_extentions
+            not_an_audio_file = extension.lower() not in teeb.default.audio_extentions
             same_as_to_lower = filename.lower() != filename
             if not_an_audio_file and same_as_to_lower:
                 filepath = sub_dir + os.sep + filename
@@ -68,7 +59,7 @@ def files_to_change_extension(directory):
     for sub_dir, directories, files in os.walk(directory):
         for filename in files:
             extension = Path(filename).suffix[1:]
-            if extension.lower() in change_extension_mapping.keys():
+            if extension.lower() in teeb.default.change_extension_mapping.keys():
                 filepath = sub_dir + os.sep + filename
                 result.append(filepath)
     return result
@@ -89,7 +80,7 @@ def album_art_files_to_convert(directory):
     for sub_dir, directories, files in os.walk(directory):
         for filename in files:
             extension = Path(filename).suffix[1:]
-            if extension.lower() in album_art_extentions_to_convert:
+            if extension.lower() in teeb.default.album_art_extentions_to_convert:
                 filepath = sub_dir + os.sep + filename
                 result.append(filepath)
     return result
@@ -102,7 +93,7 @@ def album_art_jpg_files(directory):
             extension = Path(file).suffix[1:]
             filename = Path(file).name
             if extension == "jpg":
-                suggestions = suggest_new_filenames(filename)
+                suggestions = teeb.suggest.new_art_file_name(filename)
                 if suggestions:
                     result.append((file, suggestions))
     return result
@@ -153,7 +144,9 @@ def nested_album_art(directory):
         art_files = [f for f in files if Path(f).suffix[1:] == "jpg"]
         if art_files:
             audio_files = list(
-                filter(lambda f: Path(f).suffix[1:] in audio_extentions, files)
+                filter(
+                    lambda f: Path(f).suffix[1:] in teeb.default.audio_extentions, files
+                )
             )
             if not audio_files:
                 path = Path(sub_dir)
@@ -167,7 +160,8 @@ def nested_album_art(directory):
                 if parent_files:
                     parent_audio_files = list(
                         filter(
-                            lambda f: Path(f).suffix[1:] in audio_extentions,
+                            lambda f: Path(f).suffix[1:]
+                            in teeb.default.audio_extentions,
                             parent_files,
                         )
                     )
@@ -223,7 +217,9 @@ def cue_files_and_audio_files(directory):
         cues = [f for f in files if Path(f).suffix[1:] == "cue"]
         if cues:
             audio_files = list(
-                filter(lambda f: Path(f).suffix[1:] in audio_extentions, files)
+                filter(
+                    lambda f: Path(f).suffix[1:] in teeb.default.audio_extentions, files
+                )
             )
             cue_dir = {
                 "dir": sub_dir,
