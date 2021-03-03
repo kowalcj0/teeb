@@ -14,12 +14,12 @@ from teeb.find import (
     album_art_files_to_convert,
     album_art_jpg_files,
     cue_files_and_audio_files,
-    directories_and_files_with_white_spaces,
+    directory_and_file_paths_with_spaces,
     empty_directories,
     extra_files,
     extra_text_files,
     files_to_change_extension,
-    files_with_upper_case_extention,
+    files_with_upper_case_extension,
     nested_album_art,
     non_audio_files_with_upper_case_characters,
 )
@@ -75,7 +75,7 @@ def delete_extra_text_files(directory):
 
 
 def lower_extentions(directory):
-    filepaths = files_with_upper_case_extention(directory)
+    filepaths = files_with_upper_case_extension(directory)
     if not filepaths:
         print(f"No files found with upper case extensions in: {directory}")
     else:
@@ -159,7 +159,7 @@ def change_extensions(directory):
 
 
 def replace_spaces_with_underscores(directory):
-    filepaths = directories_and_files_with_white_spaces(directory)
+    filepaths = directory_and_file_paths_with_spaces(directory)
     if not filepaths:
         print(f"No directories or files with white spaces found in: {directory}")
     else:

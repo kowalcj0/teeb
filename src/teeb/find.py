@@ -8,7 +8,7 @@ import teeb.suggest
 
 
 def extra_files(directory: str) -> List[str]:
-    """Find extra files """
+    """Find extra files, like .accurip .m3u"""
     result = []
     for sub_dir, directories, files in os.walk(directory):
         for filename in files:
@@ -20,7 +20,7 @@ def extra_files(directory: str) -> List[str]:
 
 
 def extra_text_files(directory):
-    """Find extra files """
+    """Find extra text files, like: dr_analysis.txt foo_dr.txt"""
     result = []
     for sub_dir, directories, files in os.walk(directory):
         for filename in files:
@@ -30,18 +30,20 @@ def extra_text_files(directory):
     return result
 
 
-def files_with_upper_case_extention(directory):
+def files_with_upper_case_extension(directory):
+    """Find files with mixed or uppercase extension, e.g. .Flac .APE .Jpeg .NFO"""
     result = []
     for sub_dir, directories, files in os.walk(directory):
         for filename in files:
             extension = Path(filename).suffix[1:]
             if extension.lower() != extension:
-                filepath = sub_dir + os.sep + filename
+                filepath = os.path.join(sub_dir, filename)
                 result.append(filepath)
     return result
 
 
 def non_audio_files_with_upper_case_characters(directory):
+    """Find non-audio files with mixed or upper case extension, e.g. .Jpeg"""
     result = []
     for sub_dir, directories, files in os.walk(directory):
         for filename in files:
@@ -49,27 +51,29 @@ def non_audio_files_with_upper_case_characters(directory):
             not_an_audio_file = extension.lower() not in teeb.default.audio_extentions
             same_as_to_lower = filename.lower() != filename
             if not_an_audio_file and same_as_to_lower:
-                filepath = sub_dir + os.sep + filename
+                filepath = os.path.join(sub_dir, filename)
                 result.append(filepath)
     return result
 
 
 def files_to_change_extension(directory):
+    """Find files which need their extension changed, e.g. from jpeg to jpg"""
     result = []
     for sub_dir, directories, files in os.walk(directory):
         for filename in files:
             extension = Path(filename).suffix[1:]
             if extension.lower() in teeb.default.change_extension_mapping.keys():
-                filepath = sub_dir + os.sep + filename
+                filepath = os.path.join(sub_dir, filename)
                 result.append(filepath)
     return result
 
 
-def directories_and_files_with_white_spaces(directory):
+def directory_and_file_paths_with_spaces(directory):
+    """Find directory and file paths containing spaces."""
     result = []
     for sub_dir, directories, files in os.walk(directory):
         for filename in files:
-            filepath = sub_dir + os.sep + filename
+            filepath = os.path.join(sub_dir, filename)
             if " " in filepath:
                 result.append(filepath)
     return result
@@ -81,7 +85,7 @@ def album_art_files_to_convert(directory):
         for filename in files:
             extension = Path(filename).suffix[1:]
             if extension.lower() in teeb.default.album_art_extentions_to_convert:
-                filepath = sub_dir + os.sep + filename
+                filepath = os.path.join(sub_dir, filename)
                 result.append(filepath)
     return result
 
