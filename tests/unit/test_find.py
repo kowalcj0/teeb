@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+"""Unit tests for dir & file find functions.
+
+UTF8 Visual Spoofing done with https://www.irongeek.com/homoglyph-attack-generator.php
+"""
 import os
 import random
 import string
@@ -15,6 +19,7 @@ DOTTED_RELATIVE_ALBUM_PATH = "./album"
 RELATIVE_ALBUM_PATH = "album"
 CURRENT_DIRECTORY = "."
 CURRENT_SLASHED_DIRECTORY = "./"
+ALBUM_PATH_WITH_UTF8_CHARS = "/ｕｔｆ８/рɑｔｈ tо/ＡＬᏴ⋃ⅿ"
 
 
 @pytest.fixture(
@@ -24,6 +29,7 @@ CURRENT_SLASHED_DIRECTORY = "./"
         RELATIVE_ALBUM_PATH,
         CURRENT_DIRECTORY,
         CURRENT_SLASHED_DIRECTORY,
+        ALBUM_PATH_WITH_UTF8_CHARS,
     ]
 )
 def album_with_ignored_files(request) -> List[List[tuple]]:
@@ -54,6 +60,7 @@ def album_with_ignored_files(request) -> List[List[tuple]]:
         RELATIVE_ALBUM_PATH,
         CURRENT_DIRECTORY,
         CURRENT_SLASHED_DIRECTORY,
+        ALBUM_PATH_WITH_UTF8_CHARS,
     ]
 )
 def album_with_extra_text_files(request) -> List[List[tuple]]:
@@ -76,6 +83,7 @@ def album_with_extra_text_files(request) -> List[List[tuple]]:
         RELATIVE_ALBUM_PATH,
         CURRENT_DIRECTORY,
         CURRENT_SLASHED_DIRECTORY,
+        ALBUM_PATH_WITH_UTF8_CHARS,
     ]
 )
 def album_with_mixed_case_file_extensions(request) -> List[List[tuple]]:
@@ -101,6 +109,7 @@ def album_with_mixed_case_file_extensions(request) -> List[List[tuple]]:
         RELATIVE_ALBUM_PATH,
         CURRENT_DIRECTORY,
         CURRENT_SLASHED_DIRECTORY,
+        ALBUM_PATH_WITH_UTF8_CHARS,
     ]
 )
 def album_with_files_that_need_an_extension_change(request) -> List[List[tuple]]:
@@ -124,6 +133,7 @@ def album_with_files_that_need_an_extension_change(request) -> List[List[tuple]]
         f"{ABSOLUTE_ALBUM_PATH} with spaces in path/",
         f"{DOTTED_RELATIVE_ALBUM_PATH} with spaces in path ",
         f"{RELATIVE_ALBUM_PATH} with spaces in path /",
+        ALBUM_PATH_WITH_UTF8_CHARS,
     ]
 )
 def album_with_directory_and_file_paths_containing_spaces(request) -> List[List[tuple]]:
@@ -136,6 +146,119 @@ def album_with_directory_and_file_paths_containing_spaces(request) -> List[List[
                 [
                     "file name with spaces in it.ext",
                     "another_file.name with spaces .ext",
+                ],
+            ),
+        ]
+    ]
+
+
+@pytest.fixture(
+    params=[
+        ABSOLUTE_ALBUM_PATH,
+        DOTTED_RELATIVE_ALBUM_PATH,
+        RELATIVE_ALBUM_PATH,
+        CURRENT_DIRECTORY,
+        CURRENT_SLASHED_DIRECTORY,
+        ALBUM_PATH_WITH_UTF8_CHARS,
+    ]
+)
+def album_with_art_files_that_need_conversion(request) -> List[List[tuple]]:
+    """Return a directory tree with album art files that need to be converted from e.g. bmp to jpg."""
+    return [
+        [
+            (
+                request.param,
+                [],
+                [
+                    f"file.{extension}"
+                    for extension in teeb.default.album_art_extentions_to_convert
+                ],
+            ),
+        ]
+    ]
+
+
+@pytest.fixture(
+    params=[
+        ABSOLUTE_ALBUM_PATH,
+        DOTTED_RELATIVE_ALBUM_PATH,
+        RELATIVE_ALBUM_PATH,
+        CURRENT_DIRECTORY,
+        CURRENT_SLASHED_DIRECTORY,
+        ALBUM_PATH_WITH_UTF8_CHARS,
+    ]
+)
+def album_with_art_files_that_dont_need_filename_change(request) -> List[List[tuple]]:
+    """Return a directory tree with album art files that need a file name change."""
+    return [
+        [
+            (
+                request.param,
+                [],
+                [
+                    "back.jpg",
+                    "cd.jpg",
+                    "cd1.jpg",
+                    "cd2.jpg",
+                    "cd3.jpg",
+                    "cd4.jpg",
+                    "cd5.jpg",
+                    "cd6.jpg",
+                    "cd7.jpg",
+                    "cd8.jpg",
+                    "cd9.jpg",
+                    "cd_1.jpg",
+                    "cd_2.jpg",
+                    "cd_3.jpg",
+                    "cd_4.jpg",
+                    "cd_5.jpg",
+                    "cd_6.jpg",
+                    "cd_7.jpg",
+                    "cd_8.jpg",
+                    "cd_9.jpg",
+                    "cover.jpg",
+                    "cover_out.jpg",
+                    "disc.jpg",
+                    "inlay.jpg",
+                    "inside.jpg",
+                    "matrix.jpg",
+                    "obi.jpg",
+                ],
+            ),
+        ]
+    ]
+
+
+@pytest.fixture(
+    params=[
+        ABSOLUTE_ALBUM_PATH,
+        DOTTED_RELATIVE_ALBUM_PATH,
+        RELATIVE_ALBUM_PATH,
+        CURRENT_DIRECTORY,
+        CURRENT_SLASHED_DIRECTORY,
+        ALBUM_PATH_WITH_UTF8_CHARS,
+    ]
+)
+def album_with_art_files_that_need_filename_change(request) -> List[List[tuple]]:
+    """Return a directory tree with album art files that need a file name change."""
+    return [
+        [
+            (
+                request.param,
+                [],
+                [
+                    "whatever-inlay_filename.jpg",
+                    "album-inlay.jpg",
+                    "booklet-inlay.jpg",
+                    "album-przod.jpg",
+                    "przod.jpg",
+                    "album_folder.jpg",
+                    "folder.jpg",
+                    "some.album.front.jpg",
+                    "front.jpg",
+                    "srodek.jpg",
+                    "tyl.jpg",
+                    "some-inlay.jpg",
                 ],
             ),
         ]
@@ -204,3 +327,42 @@ def test_directory_and_file_paths_with_spaces(
             assert result is not None
             for path in result:
                 assert " " in path
+
+
+def test_album_art_files_to_convert(album_with_art_files_that_need_conversion):
+    """Check if album art files that need conversion to e.g. jpg are being found"""
+    for instance in album_with_art_files_that_need_conversion:
+        with mock.patch("os.walk", return_value=instance):
+            album_path = instance[0][0]
+            result = teeb.find.album_art_files_to_convert(album_path)
+            assert result is not None
+            assert result == [
+                os.path.join(album_path, f"file.{extension}")
+                for extension in teeb.default.album_art_extentions_to_convert
+            ]
+
+
+def test_album_art_jpg_files_that_dont_need_file_name_change(
+    album_with_art_files_that_dont_need_filename_change,
+):
+    """An album art file with correct name shouldn't need a file name change."""
+    for instance in album_with_art_files_that_dont_need_filename_change:
+        with mock.patch("os.walk", return_value=instance):
+            album_path = instance[0][0]
+            result = teeb.find.album_art_jpg_files(album_path)
+            assert result == []
+
+
+def test_album_art_jpg_files_that_get_single_file_name_change_suggestion(
+    album_with_art_files_that_need_filename_change,
+):
+    """An album art file with invalid name should need a file name change."""
+    for instance in album_with_art_files_that_need_filename_change:
+        with mock.patch("os.walk", return_value=instance):
+            album_path = instance[0][0]
+            result = teeb.find.album_art_jpg_files(album_path)
+            assert result
+            # Every item on the result list should be a tuple consisting of:
+            # a filename & a list with a single suggestion
+            for item in result:
+                assert len(item[1]) == 1

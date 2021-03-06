@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
 import os
 from pathlib import Path
-from typing import List
+from typing import (
+    Dict,
+    List,
+    Optional,
+    Tuple,
+)
 
 import teeb.default
 import teeb.suggest
@@ -19,7 +24,7 @@ def extra_files(directory: str) -> List[str]:
     return result
 
 
-def extra_text_files(directory):
+def extra_text_files(directory: str) -> List[str]:
     """Find extra text files, like: dr_analysis.txt foo_dr.txt"""
     result = []
     for sub_dir, directories, files in os.walk(directory):
@@ -30,7 +35,7 @@ def extra_text_files(directory):
     return result
 
 
-def files_with_upper_case_extension(directory):
+def files_with_upper_case_extension(directory: str) -> List[str]:
     """Find files with mixed or uppercase extension, e.g. .Flac .APE .Jpeg .NFO"""
     result = []
     for sub_dir, directories, files in os.walk(directory):
@@ -42,7 +47,7 @@ def files_with_upper_case_extension(directory):
     return result
 
 
-def non_audio_files_with_upper_case_characters(directory):
+def non_audio_files_with_upper_case_characters(directory: str) -> List[str]:
     """Find non-audio files with mixed or upper case extension, e.g. .Jpeg"""
     result = []
     for sub_dir, directories, files in os.walk(directory):
@@ -56,7 +61,7 @@ def non_audio_files_with_upper_case_characters(directory):
     return result
 
 
-def files_to_change_extension(directory):
+def files_to_change_extension(directory: str) -> List[str]:
     """Find files which need their extension changed, e.g. from jpeg to jpg"""
     result = []
     for sub_dir, directories, files in os.walk(directory):
@@ -68,7 +73,7 @@ def files_to_change_extension(directory):
     return result
 
 
-def directory_and_file_paths_with_spaces(directory):
+def directory_and_file_paths_with_spaces(directory: str) -> List[str]:
     """Find directory and file paths containing spaces."""
     result = []
     for sub_dir, directories, files in os.walk(directory):
@@ -79,7 +84,7 @@ def directory_and_file_paths_with_spaces(directory):
     return result
 
 
-def album_art_files_to_convert(directory):
+def album_art_files_to_convert(directory: str) -> List[str]:
     result = []
     for sub_dir, directories, files in os.walk(directory):
         for filename in files:
@@ -90,7 +95,9 @@ def album_art_files_to_convert(directory):
     return result
 
 
-def album_art_jpg_files(directory):
+def album_art_jpg_files(
+    directory: str,
+) -> List[Optional[Tuple[str, Optional[List[str]]]]]:
     result = []
     for sub_dir, _, files in os.walk(directory):
         for file in files:
@@ -103,7 +110,7 @@ def album_art_jpg_files(directory):
     return result
 
 
-def nested_album_art(directory):
+def nested_album_art(directory) -> Dict[str, List[str]]:
     """
     Typical cases:
 
@@ -215,7 +222,7 @@ def nested_album_art(directory):
     return result
 
 
-def cue_files_and_audio_files(directory):
+def cue_files_and_audio_files(directory: str) -> List[str]:
     result = []
     for sub_dir, _, files in os.walk(directory):
         cues = [f for f in files if Path(f).suffix[1:] == "cue"]
@@ -235,7 +242,7 @@ def cue_files_and_audio_files(directory):
     return result
 
 
-def empty_directories(directory):
+def empty_directories(directory: str) -> List[str]:
     result = []
     for sub_dir, _, files in os.walk(directory):
         if not files:
