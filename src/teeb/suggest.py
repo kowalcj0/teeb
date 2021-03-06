@@ -1,7 +1,15 @@
 # -*- coding: utf-8 -*-
+from typing import (
+    List,
+    Optional,
+)
 
 
-def new_art_file_name(filename: str) -> str:
+def new_art_file_name(filename: str) -> Optional[List[str]]:
+    """Suggest a file name change.
+
+    Returns a sorted of file name suggestions.
+    """
     clean_names = [
         "inlay.jpg",
         "cover.jpg",
@@ -64,4 +72,4 @@ def new_art_file_name(filename: str) -> str:
     if "back" in filename:
         suggestions.add("back.jpg")
 
-    return list(suggestions) if list(suggestions) != [filename] else None
+    return sorted(list(suggestions)) if suggestions.difference({filename}) else None
