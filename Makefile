@@ -15,8 +15,11 @@ clean:
 
 .PHONY: lint
 lint:
-	flake8
-	pylint **/*.py
+	@echo "===================== Flake8"
+	-flake8
+	@echo "===================== PyLint"
+	-pylint **/*.py
+	@echo "===================== Mypy"
 	mypy **/*.py
 
 .PHONY: format
