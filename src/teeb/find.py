@@ -8,6 +8,7 @@ from typing import (
     Tuple,
 )
 
+import teeb.data_type
 import teeb.default
 import teeb.suggest
 
@@ -108,6 +109,40 @@ def album_art_jpg_files(
                 if suggestions:
                     result.append((file, suggestions))
     return result
+
+
+def cue_files_and_audio_files(directory: str) -> List[teeb.data_type.CuedAlbum]:
+    result = []
+    for sub_dir, _, files in os.walk(directory):
+        cues = [f for f in files if Path(f).suffix[1:] == "cue"]
+        if cues:
+            audio_files = list(
+                filter(
+                    lambda f: Path(f).suffix[1:] in teeb.default.audio_extentions, files
+                )
+            )
+            cue_dir = teeb.data_type.CuedAlbum(
+                dir=sub_dir,
+                cues=cues,
+                audio_files=audio_files,
+            )
+            result.append(cue_dir)
+
+    return result
+
+
+def empty_directories(directory: str) -> List[str]:
+    result = []
+    for sub_dir, _, files in os.walk(directory):
+        if not files:
+            child_directories = [
+                f
+                for f in os.listdir(sub_dir)
+                if os.path.isdir(os.path.join(sub_dir, f))
+            ]
+            if not child_directories:
+                result.append(sub_dir)
+    return sorted(result)
 
 
 def nested_album_art(directory) -> Dict[str, List[str]]:
@@ -220,37 +255,3 @@ def nested_album_art(directory) -> Dict[str, List[str]]:
                         result["case2"].append(item)
 
     return result
-
-
-def cue_files_and_audio_files(directory: str) -> List[str]:
-    result = []
-    for sub_dir, _, files in os.walk(directory):
-        cues = [f for f in files if Path(f).suffix[1:] == "cue"]
-        if cues:
-            audio_files = list(
-                filter(
-                    lambda f: Path(f).suffix[1:] in teeb.default.audio_extentions, files
-                )
-            )
-            cue_dir = {
-                "dir": sub_dir,
-                "cues": cues,
-                "audio_files": audio_files,
-            }
-            result.append(cue_dir)
-
-    return result
-
-
-def empty_directories(directory: str) -> List[str]:
-    result = []
-    for sub_dir, _, files in os.walk(directory):
-        if not files:
-            child_directories = [
-                f
-                for f in os.listdir(sub_dir)
-                if os.path.isdir(os.path.join(sub_dir, f))
-            ]
-            if not child_directories:
-                result.append(sub_dir)
-    return sorted(result)

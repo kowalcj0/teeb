@@ -350,8 +350,8 @@ def what_to_do_with_cue(directory):
     if not cue_directories:
         print(f"No cue files found in: {directory}")
     else:
-        single_cue = [d for d in cue_directories if len(d["cues"]) == 1]
-        multi_cue = [d for d in cue_directories if len(d["cues"]) > 1]
+        single_cue = [d for d in cue_directories if len(d.cues) == 1]
+        multi_cue = [d for d in cue_directories if len(d.cues) > 1]
         print(
             f"Found {len(single_cue)} directories with single cue file & "
             f"{len(multi_cue)} directories with more than 1 cue file"
@@ -361,13 +361,13 @@ def what_to_do_with_cue(directory):
             print("Let's start with directories containing more than 1 cue file")
             for cue_dir in multi_cue:
                 print(
-                    f"\n\nThere are {len(cue_dir['audio_files'])} audio files in "
-                    f"{cue_dir['dir']} and {len(cue_dir['cues'])} CUE files"
+                    f"\n\nThere are {len(cue_dir.audio_files)} audio files in "
+                    f"{cue_dir.dir} and {len(cue_dir.cues)} CUE files"
                 )
-                for f in sorted(cue_dir["audio_files"]):
+                for f in sorted(cue_dir.audio_files):
                     print(f"* {f}")
-                for cue_file in cue_dir["cues"]:
-                    cue_path = os.path.join(cue_dir["dir"], cue_file)
+                for cue_file in cue_dir.cues:
+                    cue_path = os.path.join(cue_dir.dir, cue_file)
                     cue = CueParser(cue_path)
                     if "FILE" in cue.meta:
                         print(
@@ -396,8 +396,8 @@ def what_to_do_with_cue(directory):
                         ),
                     )
 
-                for cue_file in cue_dir["cues"]:
-                    cue_path = os.path.join(cue_dir["dir"], cue_file)
+                for cue_file in cue_dir.cues:
+                    cue_path = os.path.join(cue_dir.dir, cue_file)
 
                     cue_decision = prompt(
                         f"What do you want to do with '{cue_file}'?",
@@ -417,20 +417,20 @@ def what_to_do_with_cue(directory):
                                 ["d", "n", "s", "q"],
                             )
                             if deleted_cue_decision in ["d", "y"]:
-                                cue_path = os.path.join(cue_dir["dir"], cue_file)
+                                cue_path = os.path.join(cue_dir.dir, cue_file)
                                 cue = CueParser(cue_path)
                                 cue_audio_file = (
                                     cue.meta.get("FILE").replace(" ", "_").lower()
                                 )
                                 cue_audio_file_path = os.path.join(
-                                    cue_dir["dir"], cue_audio_file
+                                    cue_dir.dir, cue_audio_file
                                 )
                                 if not os.path.exists(cue_audio_file_path):
                                     print(
                                         f"Couldn't find audio file '{cue_audio_file}'"
                                         f" specified in '{cue_file}'"
                                     )
-                                    for audio_file in cue_dir["audio_files"]:
+                                    for audio_file in cue_dir.audio_files:
                                         delete_entry_audio_file = prompt(
                                             "Delete '{audio_file}' and source audio?",
                                             ["d", "s", "q"],
@@ -473,11 +473,11 @@ def what_to_do_with_cue(directory):
             cues_to_delete = []
             min_audio_files = 1
             for cue_dir in single_cue:
-                cue_file = cue_dir["cues"][0]
-                cue_path = os.path.join(cue_dir["dir"], cue_file)
+                cue_file = cue_dir.cues[0]
+                cue_path = os.path.join(cue_dir.dir, cue_file)
                 cue = CueParser(cue_path)
-                files_equal_tracks = len(cue_dir["audio_files"]) == len(cue.tracks)
-                more_files_than_min = len(cue_dir["audio_files"]) > min_audio_files
+                files_equal_tracks = len(cue_dir.audio_files) == len(cue.tracks)
+                more_files_than_min = len(cue_dir.audio_files) > min_audio_files
                 if files_equal_tracks and more_files_than_min:
                     cues_to_delete.append(cue_dir)
                 else:
@@ -489,14 +489,14 @@ def what_to_do_with_cue(directory):
                     f"{min_audio_files} track that looks to be already extracted"
                 )
                 for cue_dir in cues_to_delete:
-                    cue_file = cue_dir["cues"][0]
-                    cue_path = os.path.join(cue_dir["dir"], cue_file)
+                    cue_file = cue_dir.cues[0]
+                    cue_path = os.path.join(cue_dir.dir, cue_file)
                     cue = CueParser(cue_path)
                     print(
-                        f"\n\nThere are {len(cue_dir['audio_files'])} audio files in "
-                        f"{cue_dir['dir']}"
+                        f"\n\nThere are {len(cue_dir.audio_files)} audio files in "
+                        f"{cue_dir.dir}"
                     )
-                    for f in sorted(cue_dir["audio_files"]):
+                    for f in sorted(cue_dir.audio_files):
                         print(f"* {f}")
                     print(
                         "CUE Titles:\n*",
@@ -511,8 +511,8 @@ def what_to_do_with_cue(directory):
                 )
                 if delete_extracted_cues in ["d", "y"]:
                     for cue_dir in cues_to_delete:
-                        cue_file = cue_dir["cues"][0]
-                        cue_path = os.path.join(cue_dir["dir"], cue_file)
+                        cue_file = cue_dir.cues[0]
+                        cue_path = os.path.join(cue_dir.dir, cue_file)
                         send2trash(cue_path)
                     print(f"Deleted {len(cues_to_delete)} extracted CUE files")
                 elif delete_extracted_cues == "q":
@@ -523,12 +523,12 @@ def what_to_do_with_cue(directory):
 
             if cues_to_split:
                 for cue_dir in cues_to_split:
-                    cue_file = cue_dir["cues"][0]
-                    cue_path = os.path.join(cue_dir["dir"], cue_file)
+                    cue_file = cue_dir.cues[0]
+                    cue_path = os.path.join(cue_dir.dir, cue_file)
                     cue = CueParser(cue_path)
                     print(
-                        f"\n\nOnly {len(cue_dir['audio_files'])} audio file "
-                        f"'{cue_dir['audio_files'][0]}' in '{cue_dir['dir']}'"
+                        f"\n\nOnly {len(cue_dir.audio_files)} audio file "
+                        f"'{cue_dir.audio_files[0]}' in '{cue_dir.dir}'"
                     )
                     print(
                         f"Looks like it should be split into {len(cue.tracks)} tracks "
@@ -550,8 +550,8 @@ def what_to_do_with_cue(directory):
 
                 if cue_decision == "p":
                     for cue_dir in cues_to_split:
-                        cue_file = cue_dir["cues"][0]
-                        cue_path = os.path.join(cue_dir["dir"], cue_file)
+                        cue_file = cue_dir.cues[0]
+                        cue_path = os.path.join(cue_dir.dir, cue_file)
                         cue = CueParser(cue_path)
                         cmd = f"flacon -s '{cue_path}'"
                         return_code, std = process_command(cmd)
@@ -561,7 +561,7 @@ def what_to_do_with_cue(directory):
                                 cue.meta.get("FILE").replace(" ", "_").lower()
                             )
                             cue_audio_file_path = os.path.join(
-                                cue_dir["dir"], cue_audio_file
+                                cue_dir.dir, cue_audio_file
                             )
                             if os.path.exists(cue_audio_file_path):
                                 send2trash(cue_audio_file_path)
@@ -576,9 +576,9 @@ def what_to_do_with_cue(directory):
                                     f"Couldn't find audio file '{cue_audio_file}' "
                                     f"specified in '{cue_file}'"
                                 )
-                                for audio_file in cue_dir["audio_files"]:
+                                for audio_file in cue_dir.audio_files:
                                     audio_file_path = os.path.join(
-                                        cue_dir["dir"], audio_file
+                                        cue_dir.dir, audio_file
                                     )
                                     send2trash(audio_file_path)
                                     print(
