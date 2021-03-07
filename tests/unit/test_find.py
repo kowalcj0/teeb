@@ -36,7 +36,8 @@ def album_with_ignored_files(request) -> List[List[tuple]]:
     """A parametrized fixture that makes mocked os.walk() to return directory tree.
 
     A directory tree is represented as a list of tuples.
-    Returned value has to be a nested list, because it's expected from mocked os.walk() to return a list of tuples.
+    Returned value has to be a nested list, because it's expected from mocked os.walk()
+    to return a list of tuples.
 
     Based on:
     * https://stackoverflow.com/a/24533453
@@ -88,15 +89,13 @@ def album_with_extra_text_files(request) -> List[List[tuple]]:
 )
 def album_with_mixed_case_file_extensions(request) -> List[List[tuple]]:
     """Return directory tree with files having upper case extensions"""
+    letters = string.ascii_uppercase + string.ascii_lowercase
     return [
         [
             (
                 request.param,
                 [],
-                [
-                    f"file.{''.join(random.choices(string.ascii_uppercase + string.ascii_lowercase, k=3))}"
-                    for _ in range(3)
-                ],
+                [f"file.{''.join(random.choices(letters, k=3))}" for _ in range(3)],
             ),
         ]
     ]
@@ -163,7 +162,8 @@ def album_with_directory_and_file_paths_containing_spaces(request) -> List[List[
     ]
 )
 def album_with_art_files_that_need_conversion(request) -> List[List[tuple]]:
-    """Return a directory tree with album art files that need to be converted from e.g. bmp to jpg."""
+    """Return a directory tree with album art files that need to be converted from e.g.
+    bmp to jpg."""
     return [
         [
             (
