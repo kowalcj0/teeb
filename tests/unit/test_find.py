@@ -265,6 +265,60 @@ def album_with_art_files_that_need_filename_change(request) -> List[List[tuple]]
     ]
 
 
+@pytest.fixture(
+    params=[
+        ABSOLUTE_ALBUM_PATH,
+        DOTTED_RELATIVE_ALBUM_PATH,
+        RELATIVE_ALBUM_PATH,
+        CURRENT_DIRECTORY,
+        CURRENT_SLASHED_DIRECTORY,
+        ALBUM_PATH_WITH_UTF8_CHARS,
+    ]
+)
+def directory_with_one_cue_and_one_audio_file(request) -> List[List[tuple]]:
+    """Return a directory tree with one CUE file and one audio file."""
+    return [
+        [
+            (
+                request.param,
+                [],
+                [
+                    "file.cue",
+                    f"file.{random.choice(teeb.default.audio_extentions)}",
+                ],
+            ),
+        ]
+    ]
+
+
+@pytest.fixture(
+    params=[
+        ABSOLUTE_ALBUM_PATH,
+        DOTTED_RELATIVE_ALBUM_PATH,
+        RELATIVE_ALBUM_PATH,
+        CURRENT_DIRECTORY,
+        CURRENT_SLASHED_DIRECTORY,
+        ALBUM_PATH_WITH_UTF8_CHARS,
+    ]
+)
+def directory_with_one_cue_and_multiple_audio_file(request) -> List[List[tuple]]:
+    """Return a directory tree with one CUE file and multiple audio files."""
+    audio_extension = random.choice(teeb.default.audio_extentions)
+    return [
+        [
+            (
+                request.param,
+                [],
+                ["file.cue"]
+                + [
+                    f"file_{idx}.{audio_extension}"
+                    for idx in range(1, random.randint(3, 10))
+                ],
+            ),
+        ]
+    ]
+
+
 def test_find_extra_files(album_with_ignored_files):
     """Test find_extra_files called for every type of album path"""
     for instance in album_with_ignored_files:
@@ -366,3 +420,37 @@ def test_album_art_jpg_files_that_get_single_file_name_change_suggestion(
             # a filename & a list with a single suggestion
             for item in result:
                 assert len(item[1]) == 1
+
+
+def test_cue_files_and_audio_files_one_cue_and_one_audio_files(
+    directory_with_one_cue_and_one_audio_file,
+):
+    """An album dir with one CUE file and one audio file"""
+    for instance in directory_with_one_cue_and_one_audio_file:
+        with mock.patch("os.walk", return_value=instance):
+            album_path = instance[0][0]
+            result = teeb.find.cue_files_and_audio_files(album_path)
+            assert result
+            for item in result:
+                assert item.dir == album_path
+                assert item.cues == ["file.cue"]
+                assert len(item.audio_files) == 1
+                assert item.audio_files[0].startswith("file.")
+
+
+def test_cue_files_and_audio_files_one_cue_and_multiple_audio_files(
+    directory_with_one_cue_and_multiple_audio_file,
+):
+    """An album dir with one CUE file and multiple audio files"""
+    for instance in directory_with_one_cue_and_multiple_audio_file:
+        with mock.patch("os.walk", return_value=instance):
+            album_path = instance[0][0]
+            result = teeb.find.cue_files_and_audio_files(album_path)
+            assert result
+            for item in result:
+                assert item.dir == album_path
+                assert item.cues == ["file.cue"]
+                assert len(item.audio_files) > 1
+                assert all(
+                    audio_file.startswith("file_") for audio_file in item.audio_files
+                )
