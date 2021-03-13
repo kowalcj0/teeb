@@ -6,13 +6,20 @@ UTF8 Visual Spoofing done with https://www.irongeek.com/homoglyph-attack-generat
 import os
 import random
 import string
-from typing import List
+from typing import (
+    List,
+    Tuple,
+)
 from unittest import mock
 
 import pytest
+from _pytest.fixtures import SubRequest
 
 import teeb.default
 import teeb.find
+
+# Type for directory tree structure returned by os.walk()
+DirectoryTree = List[List[Tuple[str, List, List[str]]]]
 
 ABSOLUTE_ALBUM_PATH = "/absolute/path/to/album"
 DOTTED_RELATIVE_ALBUM_PATH = "./album"
@@ -32,7 +39,7 @@ ALBUM_PATH_WITH_UTF8_CHARS = "/ｕｔｆ８/рɑｔｈ tо/ＡＬᏴ⋃ⅿ"
         ALBUM_PATH_WITH_UTF8_CHARS,
     ]
 )
-def album_with_ignored_files(request) -> List[List[tuple]]:
+def album_with_ignored_files(request: SubRequest) -> DirectoryTree:
     """A parametrized fixture that makes mocked os.walk() to return directory tree.
 
     A directory tree is represented as a list of tuples.
@@ -64,7 +71,7 @@ def album_with_ignored_files(request) -> List[List[tuple]]:
         ALBUM_PATH_WITH_UTF8_CHARS,
     ]
 )
-def album_with_extra_text_files(request) -> List[List[tuple]]:
+def album_with_extra_text_files(request: SubRequest) -> DirectoryTree:
     """A parametrized fixture that makes mocked os.walk() to return directory tree."""
     return [
         [
@@ -87,7 +94,7 @@ def album_with_extra_text_files(request) -> List[List[tuple]]:
         ALBUM_PATH_WITH_UTF8_CHARS,
     ]
 )
-def album_with_mixed_case_file_extensions(request) -> List[List[tuple]]:
+def album_with_mixed_case_file_extensions(request: SubRequest) -> DirectoryTree:
     """Return directory tree with files having upper case extensions"""
     letters = string.ascii_uppercase + string.ascii_lowercase
     return [
@@ -111,7 +118,9 @@ def album_with_mixed_case_file_extensions(request) -> List[List[tuple]]:
         ALBUM_PATH_WITH_UTF8_CHARS,
     ]
 )
-def album_with_files_that_need_an_extension_change(request) -> List[List[tuple]]:
+def album_with_files_that_need_an_extension_change(
+    request: SubRequest,
+) -> DirectoryTree:
     """Return a directory tree with files that need their extension changed."""
     return [
         [
@@ -135,7 +144,9 @@ def album_with_files_that_need_an_extension_change(request) -> List[List[tuple]]
         ALBUM_PATH_WITH_UTF8_CHARS,
     ]
 )
-def album_with_directory_and_file_paths_containing_spaces(request) -> List[List[tuple]]:
+def album_with_directory_and_file_paths_containing_spaces(
+    request: SubRequest,
+) -> DirectoryTree:
     """Return a directory tree with directory and file paths containing spaces."""
     return [
         [
@@ -161,7 +172,7 @@ def album_with_directory_and_file_paths_containing_spaces(request) -> List[List[
         ALBUM_PATH_WITH_UTF8_CHARS,
     ]
 )
-def album_with_art_files_that_need_conversion(request) -> List[List[tuple]]:
+def album_with_art_files_that_need_conversion(request: SubRequest) -> DirectoryTree:
     """Return a directory tree with album art files that need to be converted from e.g.
     bmp to jpg."""
     return [
@@ -188,7 +199,9 @@ def album_with_art_files_that_need_conversion(request) -> List[List[tuple]]:
         ALBUM_PATH_WITH_UTF8_CHARS,
     ]
 )
-def album_with_art_files_that_dont_need_filename_change(request) -> List[List[tuple]]:
+def album_with_art_files_that_dont_need_filename_change(
+    request: SubRequest,
+) -> DirectoryTree:
     """Return a directory tree with album art files that need a file name change."""
     return [
         [
@@ -239,7 +252,9 @@ def album_with_art_files_that_dont_need_filename_change(request) -> List[List[tu
         ALBUM_PATH_WITH_UTF8_CHARS,
     ]
 )
-def album_with_art_files_that_need_filename_change(request) -> List[List[tuple]]:
+def album_with_art_files_that_need_filename_change(
+    request: SubRequest,
+) -> DirectoryTree:
     """Return a directory tree with album art files that need a file name change."""
     return [
         [
@@ -275,7 +290,7 @@ def album_with_art_files_that_need_filename_change(request) -> List[List[tuple]]
         ALBUM_PATH_WITH_UTF8_CHARS,
     ]
 )
-def directory_with_one_cue_and_one_audio_file(request) -> List[List[tuple]]:
+def directory_with_one_cue_and_one_audio_file(request: SubRequest) -> DirectoryTree:
     """Return a directory tree with one CUE file and one audio file."""
     return [
         [
@@ -301,7 +316,9 @@ def directory_with_one_cue_and_one_audio_file(request) -> List[List[tuple]]:
         ALBUM_PATH_WITH_UTF8_CHARS,
     ]
 )
-def directory_with_one_cue_and_multiple_audio_file(request) -> List[List[tuple]]:
+def directory_with_one_cue_and_multiple_audio_file(
+    request: SubRequest,
+) -> DirectoryTree:
     """Return a directory tree with one CUE file and multiple audio files."""
     audio_extension = random.choice(teeb.default.audio_extentions)
     return [
@@ -327,7 +344,7 @@ def directory_with_one_cue_and_multiple_audio_file(request) -> List[List[tuple]]
         ALBUM_PATH_WITH_UTF8_CHARS,
     ]
 )
-def empty_directory(request) -> List[List[tuple]]:
+def empty_directory(request: SubRequest) -> DirectoryTree:
     """Return a directory tree with no files."""
     return [
         [
@@ -342,7 +359,7 @@ def empty_directory(request) -> List[List[tuple]]:
         CURRENT_SLASHED_DIRECTORY,
     ]
 )
-def empty_current_directory(request) -> List[List[tuple]]:
+def empty_current_directory(request: SubRequest) -> DirectoryTree:
     """Return a directory tree with no files."""
     return [
         [
@@ -359,7 +376,7 @@ def empty_current_directory(request) -> List[List[tuple]]:
         ALBUM_PATH_WITH_UTF8_CHARS,
     ]
 )
-def empty_directories(request) -> List[List[tuple]]:
+def empty_directories(request: SubRequest) -> DirectoryTree:
     """Return a directory tree with multiple empty directories."""
     return [
         [
