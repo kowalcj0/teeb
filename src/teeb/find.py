@@ -86,6 +86,7 @@ def directory_and_file_paths_with_spaces(directory: str) -> List[str]:
 
 
 def album_art_files_to_convert(directory: str) -> List[str]:
+    """Find album art files that should be converted to preferred type."""
     result = []
     for sub_dir, directories, files in os.walk(directory):
         for filename in files:
@@ -99,6 +100,7 @@ def album_art_files_to_convert(directory: str) -> List[str]:
 def album_art_jpg_files(
     directory: str,
 ) -> List[Optional[Tuple[str, Optional[List[str]]]]]:
+    """Find all jpg album art that might need a file name change."""
     result = []
     for sub_dir, _, files in os.walk(directory):
         for file in files:
@@ -112,6 +114,7 @@ def album_art_jpg_files(
 
 
 def cue_files_and_audio_files(directory: str) -> List[teeb.data_type.CuedAlbum]:
+    """Find albums containing CUE files and audio files."""
     result = []
     for sub_dir, _, files in os.walk(directory):
         cues = [f for f in files if Path(f).suffix[1:] == "cue"]
@@ -127,7 +130,6 @@ def cue_files_and_audio_files(directory: str) -> List[teeb.data_type.CuedAlbum]:
                 audio_files=audio_files,
             )
             result.append(cue_dir)
-
     return result
 
 
@@ -148,37 +150,91 @@ def empty_directories(directory: str) -> List[str]:
     return sorted(result)
 
 
-def nested_album_art(directory) -> Dict[str, List[str]]:
-    """
-    Typical cases:
+def nested_album_art(directory: str) -> Dict[str, List[str]]:
+    """Find nested album art directories.
 
-    #0 - desired layout: album art in the same directory as audio files
-    album:
-        -album art files: cover.jpg etc
+    People organise their albums and album art in many different ways.
+    In my personal experience I found the layout shown below as the most compatible with
+    variety of music players, e.g.: deadbeef, foobar, mpd, winamp etc.
+    This function finds album art directories that don't conform to it.
+
+    # Preferred layout:
+     * all audio files in the same directory
+         * disc number precedes track number
+     * album art in the same directory as audio files
+        * lower case file names
+    .
+    ├── 101-Album_Artist_-_Track_Title_01.flac
+    ├── 102-Album_Artist_-_Track_Title_02.flac
+    ├── 103-Album_Artist_-_Track_Title_02.flac
+    ├── 201-Album_Artist_-_Track_Title_01.flac
+    ├── 202-Album_Artist_-_Track_Title_02.flac
+    ├── 203-Album_Artist_-_Track_Title_02.flac
+    ├── back.jpg
+    └── cover.jpg
+
+    Typical cases that don't adhere to preferred layout:
 
     #1 - album art in dedicated sub-directory
-    album:
-        -album_art_dir\
-                    -album art files: cover.jpg etc
+    .
+    ├── 01-track_1.flac
+    ├── 02-track_2.flac
+    ├── 03-track_2.flac
+    └── album_art
+        └── cover.jpg
 
     #2 - album art in a directory on the same level as directories with audio files
-    album:
-        -album_art_dir\
-                    -album art files: cover.jpg etc
-        -cd_1\audio files
-        -cd_2\audio files
+    .
+    ├── album_art
+    │   └── cover.jpg
+    ├── cd1
+    │   ├── 01-track_1.flac
+    │   ├── 02-track_2.flac
+    │   └── 03-track_3.flac
+    └── cd2
+        ├── 01-track_1.flac
+        ├── 02-track_2.flac
+        └── 03-track_3.flac
+    or
+    .
+    ├── album_art
+    │   ├── back.jpg
+    │   ├── booklet.jpg
+    │   └── cover.jpg
+    ├── cd1
+    │   ├── 01-track_1.flac
+    │   ├── 02-track_2.flac
+    │   ├── 03-track_3.flac
+    │   └── cover.jpg
+    └── cd2
+        ├── 01-track_1.flac
+        ├── 02-track_2.flac
+        ├── 03-track_3.flac
+        └── cover.jpg
 
     #2a - multiple album art directories and art files
-    album:
-        -album_art_dir\
-                    -album art files: cover.jpg etc
-        -cd_1\audio files
-                        -album_art_dir\
-                                    -album art files: cover.jpg etc
-        -cd_2\audio files
-                        -album_art_dir\
-                                    -album art files: cover.jpg etc
-        -some album art files: box_cover.jpg etc
+    .
+    ├── box_cover.jpg
+    ├── album_art
+    │   ├── box_back.jpg
+    │   └── cover.jpg
+    ├── cd1
+    │   ├── 01-track_1.flac
+    │   ├── 02-track_2.flac
+    │   ├── 03-track_3.flac
+    │   ├── album_art
+    │   │   ├── back.jpg
+    │   │   ├── booklet.jpg
+    │   │   └── cover.jpg
+    │   └── cover.jpg
+    └── cd2
+        ├── 01-track_1.flac
+        ├── 02-track_2.flac
+        ├── 03-track_3.flac
+        └── album_art
+            ├── back.jpg
+            ├── booklet.jpg
+            └── cover.jpg
     """
 
     def case2(path, parent, f) -> bool:
