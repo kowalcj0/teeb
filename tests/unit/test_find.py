@@ -6,6 +6,7 @@ UTF8 Visual Spoofing done with https://www.irongeek.com/homoglyph-attack-generat
 import os
 import random
 import string
+from pathlib import PosixPath
 from typing import (
     List,
     Tuple,
@@ -388,6 +389,150 @@ def empty_directories(request: SubRequest) -> DirectoryTree:
     ]
 
 
+@pytest.fixture(
+    params=[
+        ABSOLUTE_ALBUM_PATH,
+        DOTTED_RELATIVE_ALBUM_PATH,
+        RELATIVE_ALBUM_PATH,
+        CURRENT_DIRECTORY,
+        CURRENT_SLASHED_DIRECTORY,
+        ALBUM_PATH_WITH_UTF8_CHARS,
+    ]
+)
+def album_layout_preferred(request: SubRequest) -> DirectoryTree:
+    """Return a directory tree with preferred album layout."""
+    return [
+        [
+            (
+                request.param,
+                [],
+                [
+                    "101-Album_Artist_-_Track_Title_01.flac",
+                    "102-Album_Artist_-_Track_Title_02.flac",
+                    "103-Album_Artist_-_Track_Title_03.flac",
+                    "201-Album_Artist_-_Track_Title_01.flac",
+                    "202-Album_Artist_-_Track_Title_02.flac",
+                    "203-Album_Artist_-_Track_Title_03.flac",
+                    "cover.jpg",
+                    "back.jpg",
+                ],
+            )
+        ]
+    ]
+
+
+@pytest.fixture(
+    params=[
+        ABSOLUTE_ALBUM_PATH,
+        DOTTED_RELATIVE_ALBUM_PATH,
+        RELATIVE_ALBUM_PATH,
+        CURRENT_DIRECTORY,
+        CURRENT_SLASHED_DIRECTORY,
+        ALBUM_PATH_WITH_UTF8_CHARS,
+    ]
+)
+def album_layout_case_1(request: SubRequest) -> DirectoryTree:
+    return [
+        [
+            (
+                request.param,
+                ["album_art"],
+                ["02-track_02.flac", "03-track_03.flac", "01-track_01.flac"],
+            ),
+            (f"{request.param}/album_art", [], ["cover.jpg", "back.jpg"]),
+        ]
+    ]
+
+
+@pytest.fixture(
+    params=[
+        ABSOLUTE_ALBUM_PATH,
+        DOTTED_RELATIVE_ALBUM_PATH,
+        RELATIVE_ALBUM_PATH,
+        CURRENT_DIRECTORY,
+        CURRENT_SLASHED_DIRECTORY,
+        ALBUM_PATH_WITH_UTF8_CHARS,
+    ]
+)
+def album_layout_case_2(request: SubRequest) -> DirectoryTree:
+    return [
+        [
+            (f"{request.param}", ["album_art", "cd1", "cd2"], []),
+            (f"{request.param}/album_art", [], ["cover.jpg", "back.jpg"]),
+            (f"{request.param}/cd1", [], ["01-track_1.flac", "02-track_2.flac"]),
+            (f"{request.param}/cd2", [], ["01-track_1.flac", "02-track_2.flac"]),
+        ]
+    ]
+
+
+@pytest.fixture(
+    params=[
+        ABSOLUTE_ALBUM_PATH,
+        DOTTED_RELATIVE_ALBUM_PATH,
+        RELATIVE_ALBUM_PATH,
+        CURRENT_DIRECTORY,
+        CURRENT_SLASHED_DIRECTORY,
+        ALBUM_PATH_WITH_UTF8_CHARS,
+    ]
+)
+def album_layout_case_2a(request: SubRequest) -> DirectoryTree:
+    return [
+        [
+            (f"{request.param}", ["album_art", "cd1", "cd2"], []),
+            (f"{request.param}/album_art", [], ["cover.jpg", "back.jpg"]),
+            (
+                f"{request.param}/cd1",
+                [],
+                ["cover.jpg", "01-track_1.flac", "02-track_2.flac"],
+            ),
+            (
+                f"{request.param}/cd2",
+                [],
+                ["cover.jpg", "01-track_1.flac", "02-track_2.flac"],
+            ),
+        ]
+    ]
+
+
+@pytest.fixture(
+    params=[
+        ABSOLUTE_ALBUM_PATH,
+        DOTTED_RELATIVE_ALBUM_PATH,
+        RELATIVE_ALBUM_PATH,
+        CURRENT_DIRECTORY,
+        CURRENT_SLASHED_DIRECTORY,
+        ALBUM_PATH_WITH_UTF8_CHARS,
+    ]
+)
+def album_layout_case_2b(request: SubRequest) -> DirectoryTree:
+    return [
+        [
+            (f"{request.param}", ["album_art", "cd1", "cd2"], ["box_cover.jpg"]),
+            (f"{request.param}/album_art", [], ["cover.jpg", "box_back.jpg"]),
+            (
+                f"{request.param}/cd1",
+                ["album_art"],
+                ["cover.jpg", "01-track_1.flac", "03-track_3.flac", "02-track_2.flac"],
+            ),
+            (
+                f"{request.param}/cd1/album_art",
+                [],
+                ["booklet.jpg", "cover.jpg", "back.jpg"],
+            ),
+            (
+                f"{request.param}/cd2",
+                ["album_art"],
+                ["01-track_1.flac", "03-track_3.flac", "02-track_2.flac"],
+            ),
+            (
+                f"{request.param}/cd2/album_art",
+                [],
+                ["booklet.jpg", "cover.jpg", "back.jpg"],
+            ),
+        ]
+    ]
+
+
 def test_find_extra_files(album_with_ignored_files):
     """Test find_extra_files called for every type of album path"""
     for instance in album_with_ignored_files:
@@ -564,3 +709,34 @@ def test_empty_directories_multiple(empty_directories):
             with mock.patch("os.listdir", return_value=[album_path]):
                 result = teeb.find.empty_directories(album_path)
                 assert result
+
+
+def test_nested_album_art_preferred_layout(album_layout_preferred):
+    """No nested album art of any type should be reported for preferred album layout."""
+    for instance in album_layout_preferred:
+        with mock.patch("os.walk", return_value=instance):
+            album_path = instance[0][0]
+            result = teeb.find.nested_album_art(album_path)
+            assert result == {"case1": [], "case2": []}
+
+
+def test_nested_album_art_album_layout_case_1(album_layout_case_1):
+    """Find nested album art of case 1."""
+    for instance in album_layout_case_1:
+        with mock.patch("os.walk", return_value=instance):
+            album_path = instance[0][0]
+            files_in_parent_directory = instance[0][2]
+            with mock.patch("os.listdir", return_value=files_in_parent_directory):
+                with mock.patch("os.path.isfile", return_value=True):
+                    result = teeb.find.nested_album_art(album_path)
+                    expected = {
+                        "case1": [
+                            {
+                                "art_dir": f"{album_path}/album_art",
+                                "art_files": ["cover.jpg", "back.jpg"],
+                                "parent_dir": PosixPath(album_path),
+                            }
+                        ],
+                        "case2": [],
+                    }
+                    assert result == expected
