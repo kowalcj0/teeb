@@ -183,9 +183,10 @@ def nested_album_art(directory: str) -> Dict[str, List[str]]:
     └── album_art
         └── cover.jpg
 
-    #2 - album art in a directory on the same level as directories with audio files
+    #2 - dedicated album art on the same level as disc directories
     .
     ├── album_art
+    │   ├── back.jpg
     │   └── cover.jpg
     ├── cd1
     │   ├── 01-track_1.flac
@@ -195,7 +196,9 @@ def nested_album_art(directory: str) -> Dict[str, List[str]]:
         ├── 01-track_1.flac
         ├── 02-track_2.flac
         └── 03-track_3.flac
-    or
+
+    #2a - dedicated album art on the same level as disc directories
+          with some album album art duplicated in disc directories
     .
     ├── album_art
     │   ├── back.jpg
@@ -212,7 +215,7 @@ def nested_album_art(directory: str) -> Dict[str, List[str]]:
         ├── 03-track_3.flac
         └── cover.jpg
 
-    #2a - multiple album art directories and art files
+    #2b - multiple album art directories and art files
     .
     ├── box_cover.jpg
     ├── album_art
@@ -237,16 +240,16 @@ def nested_album_art(directory: str) -> Dict[str, List[str]]:
             └── cover.jpg
     """
 
-    def case2(path, parent, f) -> bool:
-        is_file = os.path.isfile(os.path.join(parent, f))
-        return not is_file and f != path.name
+    def is_not_preferred_case(path, parent, name) -> bool:
+        is_file = os.path.isfile(os.path.join(parent, name))
+        return not is_file and name != path.name
 
     result = {
         "case1": [],
         "case2": [],
     }
     for sub_dir, _, files in os.walk(directory):
-        art_files = [f for f in files if Path(f).suffix[1:] == "jpg"]
+        art_files = [name for name in files if Path(name).suffix[1:] == "jpg"]
         if art_files:
             audio_files = list(
                 filter(
@@ -258,9 +261,9 @@ def nested_album_art(directory: str) -> Dict[str, List[str]]:
                 # print(f"\n\nFound art folder without audio files: {sub_dir}")
                 parent = path.parent
                 parent_files = [
-                    f
-                    for f in os.listdir(parent)
-                    if os.path.isfile(os.path.join(parent, f))
+                    name
+                    for name in os.listdir(parent)
+                    if os.path.isfile(os.path.join(parent, name))
                 ]
                 if parent_files:
                     parent_audio_files = list(
@@ -271,10 +274,10 @@ def nested_album_art(directory: str) -> Dict[str, List[str]]:
                         )
                     )
                     if parent_audio_files:
-                        print(
-                            f"CASE #1: There are audio files in album art "
-                            f"parent directory: {parent}\n"
-                        )
+                        # print(
+                        #     f"CASE #1: There are audio files in album art "
+                        #     f"parent directory: {parent}\n"
+                        # )
                         item = {
                             "art_dir": sub_dir,
                             "art_files": art_files,
@@ -283,7 +286,9 @@ def nested_album_art(directory: str) -> Dict[str, List[str]]:
                         result["case1"].append(item)
                     else:
                         parent_directories = [
-                            f for f in os.listdir(parent) if case2(path, parent, f)
+                            name
+                            for name in os.listdir(parent)
+                            if is_not_preferred_case(path, parent, name)
                         ]
                         if parent_directories:
                             # print(
@@ -299,7 +304,9 @@ def nested_album_art(directory: str) -> Dict[str, List[str]]:
                             result["case2"].append(item)
                 else:
                     parent_directories = [
-                        f for f in os.listdir(parent) if case2(path, parent, f)
+                        name
+                        for name in os.listdir(parent)
+                        if is_not_preferred_case(path, parent, name)
                     ]
                     if parent_directories:
                         # print(
