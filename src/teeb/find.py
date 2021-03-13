@@ -132,13 +132,16 @@ def cue_files_and_audio_files(directory: str) -> List[teeb.data_type.CuedAlbum]:
 
 
 def empty_directories(directory: str) -> List[str]:
+    """Return a list of empty directories found in given directory.
+    See https://docs.python.org/3/library/os.html#os.listdir
+    """
     result = []
     for sub_dir, _, files in os.walk(directory):
         if not files:
             child_directories = [
-                f
-                for f in os.listdir(sub_dir)
-                if os.path.isdir(os.path.join(sub_dir, f))
+                name
+                for name in os.listdir(sub_dir)
+                if os.path.isdir(os.path.join(sub_dir, name))
             ]
             if not child_directories:
                 result.append(sub_dir)

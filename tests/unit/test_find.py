@@ -319,6 +319,58 @@ def directory_with_one_cue_and_multiple_audio_file(request) -> List[List[tuple]]
     ]
 
 
+@pytest.fixture(
+    params=[
+        ABSOLUTE_ALBUM_PATH,
+        DOTTED_RELATIVE_ALBUM_PATH,
+        RELATIVE_ALBUM_PATH,
+        ALBUM_PATH_WITH_UTF8_CHARS,
+    ]
+)
+def empty_directory(request) -> List[List[tuple]]:
+    """Return a directory tree with no files."""
+    return [
+        [
+            (request.param, [], []),
+        ]
+    ]
+
+
+@pytest.fixture(
+    params=[
+        CURRENT_DIRECTORY,
+        CURRENT_SLASHED_DIRECTORY,
+    ]
+)
+def empty_current_directory(request) -> List[List[tuple]]:
+    """Return a directory tree with no files."""
+    return [
+        [
+            (request.param, [], []),
+        ]
+    ]
+
+
+@pytest.fixture(
+    params=[
+        ABSOLUTE_ALBUM_PATH,
+        DOTTED_RELATIVE_ALBUM_PATH,
+        RELATIVE_ALBUM_PATH,
+        ALBUM_PATH_WITH_UTF8_CHARS,
+    ]
+)
+def empty_directories(request) -> List[List[tuple]]:
+    """Return a directory tree with multiple empty directories."""
+    return [
+        [
+            (request.param, ["empty_2", "empty_1", "empty_3"], []),
+            (f"{request.param}/empty_2", [], []),
+            (f"{request.param}/empty_1", [], []),
+            (f"{request.param}/empty_3", [], []),
+        ]
+    ]
+
+
 def test_find_extra_files(album_with_ignored_files):
     """Test find_extra_files called for every type of album path"""
     for instance in album_with_ignored_files:
@@ -454,3 +506,44 @@ def test_cue_files_and_audio_files_one_cue_and_multiple_audio_files(
                 assert all(
                     audio_file.startswith("file_") for audio_file in item.audio_files
                 )
+
+
+def test_empty_directories_non_current(empty_directory):
+    """Find empty directory.
+
+    See https://docs.python.org/3/library/os.html#os.listdir
+    """
+    for instance in empty_directory:
+        with mock.patch("os.walk", return_value=instance):
+            album_path = instance[0][0]
+            with mock.patch("os.listdir", return_value=[album_path]):
+                result = teeb.find.empty_directories(album_path)
+                assert result
+
+
+def test_empty_directories_current_dir(empty_current_directory):
+    """Ensure that the current or parent directories aren't listed.
+
+    os.listdir does not include the special entries
+    '.' and '..' even if they are present in the directory.
+    See https://docs.python.org/3/library/os.html#os.listdir
+    """
+    for instance in empty_current_directory:
+        with mock.patch("os.walk", return_value=instance):
+            album_path = instance[0][0]
+            with mock.patch("os.listdir", return_value=[album_path]):
+                result = teeb.find.empty_directories(album_path)
+                assert result == []
+
+
+def test_empty_directories_multiple(empty_directories):
+    """Find empty directories.
+
+    See https://docs.python.org/3/library/os.html#os.listdir
+    """
+    for instance in empty_directories:
+        with mock.patch("os.walk", return_value=instance):
+            album_path = instance[0][0]
+            with mock.patch("os.listdir", return_value=[album_path]):
+                result = teeb.find.empty_directories(album_path)
+                assert result
