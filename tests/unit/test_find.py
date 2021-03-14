@@ -454,7 +454,7 @@ def album_layout_case_1(request: SubRequest) -> DirectoryTree:
         ALBUM_PATH_WITH_UTF8_CHARS,
     ]
 )
-def album_layout_case_2(request: SubRequest) -> DirectoryTree:
+def album_layout_case_2a(request: SubRequest) -> DirectoryTree:
     return [
         [
             (f"{request.param}", ["album_art", "cd1", "cd2"], []),
@@ -475,7 +475,7 @@ def album_layout_case_2(request: SubRequest) -> DirectoryTree:
         ALBUM_PATH_WITH_UTF8_CHARS,
     ]
 )
-def album_layout_case_2a(request: SubRequest) -> DirectoryTree:
+def album_layout_case_2b(request: SubRequest) -> DirectoryTree:
     return [
         [
             (f"{request.param}", ["album_art", "cd1", "cd2"], []),
@@ -504,7 +504,7 @@ def album_layout_case_2a(request: SubRequest) -> DirectoryTree:
         ALBUM_PATH_WITH_UTF8_CHARS,
     ]
 )
-def album_layout_case_2b(request: SubRequest) -> DirectoryTree:
+def album_layout_case_2c(request: SubRequest) -> DirectoryTree:
     return [
         [
             (f"{request.param}", ["album_art", "cd1", "cd2"], ["box_cover.jpg"]),

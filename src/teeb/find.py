@@ -183,7 +183,7 @@ def nested_album_art(directory: str) -> Dict[str, List[str]]:
     └── album_art
         └── cover.jpg
 
-    #2 - dedicated album art on the same level as disc directories
+    #2a - dedicated album art on the same level as disc directories
     .
     ├── album_art
     │   ├── back.jpg
@@ -197,7 +197,7 @@ def nested_album_art(directory: str) -> Dict[str, List[str]]:
         ├── 02-track_2.flac
         └── 03-track_3.flac
 
-    #2a - dedicated album art on the same level as disc directories
+    #2b - dedicated album art on the same level as disc directories
           with some album album art duplicated in disc directories
     .
     ├── album_art
@@ -215,7 +215,7 @@ def nested_album_art(directory: str) -> Dict[str, List[str]]:
         ├── 03-track_3.flac
         └── cover.jpg
 
-    #2b - multiple album art directories and art files
+    #2c - multiple album art directories and art files
     .
     ├── box_cover.jpg
     ├── album_art
