@@ -570,6 +570,24 @@ def test_files_with_upper_case_extension(album_with_mixed_case_file_extensions):
                 assert file_path.startswith(os.path.join(album_path, "file."))
 
 
+def test_non_audio_files_with_upper_case_characters(
+    album_with_mixed_case_file_extensions,
+):
+    """Check if non-audio files with upper case characters are found."""
+    for instance in album_with_mixed_case_file_extensions:
+        with mock.patch("os.walk", return_value=instance):
+            album_path = instance[0][0]
+            result = teeb.find.non_audio_files_with_upper_case_characters(album_path)
+            assert result is not None
+            for file_path in result:
+                assert any(c.isupper() for c in PosixPath(file_path).suffix[1:])
+                assert all(
+                    ext.lower() not in teeb.default.audio_extentions
+                    for ext in PosixPath(file_path).suffix[1:]
+                )
+                assert file_path.startswith(os.path.join(album_path, "file."))
+
+
 def test_files_to_change_extension(album_with_files_that_need_an_extension_change):
     """Check if files that need their extension changed are being found"""
     for instance in album_with_files_that_need_an_extension_change:
