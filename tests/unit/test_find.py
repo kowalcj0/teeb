@@ -426,6 +426,36 @@ def album_layout_preferred(request: SubRequest) -> DirectoryTree:
         ALBUM_PATH_WITH_UTF8_CHARS,
     ]
 )
+def album_layout_preferred_no_album_art(request: SubRequest) -> DirectoryTree:
+    """Return a directory tree with preferred album layout."""
+    return [
+        [
+            (
+                request.param,
+                [],
+                [
+                    "101-Album_Artist_-_Track_Title_01.flac",
+                    "102-Album_Artist_-_Track_Title_02.flac",
+                    "103-Album_Artist_-_Track_Title_03.flac",
+                    "201-Album_Artist_-_Track_Title_01.flac",
+                    "202-Album_Artist_-_Track_Title_02.flac",
+                    "203-Album_Artist_-_Track_Title_03.flac",
+                ],
+            )
+        ]
+    ]
+
+
+@pytest.fixture(
+    params=[
+        ABSOLUTE_ALBUM_PATH,
+        DOTTED_RELATIVE_ALBUM_PATH,
+        RELATIVE_ALBUM_PATH,
+        CURRENT_DIRECTORY,
+        CURRENT_SLASHED_DIRECTORY,
+        ALBUM_PATH_WITH_UTF8_CHARS,
+    ]
+)
 def album_layout_case_1(request: SubRequest) -> DirectoryTree:
     return [
         [
@@ -731,6 +761,15 @@ def test_empty_directories_multiple(empty_directories):
 def test_nested_album_art_preferred_layout(album_layout_preferred):
     """No nested album art of any type should be reported for preferred album layout."""
     for instance in album_layout_preferred:
+        with mock.patch("os.walk", return_value=instance):
+            album_path = instance[0][0]
+            result = teeb.find.nested_album_art(album_path)
+            assert result == {"case1": [], "case2": []}
+
+
+def test_nested_album_art_preferred_layout_no_art(album_layout_preferred_no_album_art):
+    """No nested album art of any type should be reported for preferred album layout."""
+    for instance in album_layout_preferred_no_album_art:
         with mock.patch("os.walk", return_value=instance):
             album_path = instance[0][0]
             result = teeb.find.nested_album_art(album_path)
