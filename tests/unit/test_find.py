@@ -98,15 +98,10 @@ def album_with_extra_text_files(request: SubRequest) -> DirectoryTree:
 def album_with_mixed_case_file_extensions(request: SubRequest) -> DirectoryTree:
     """Return directory tree with files having upper case extensions"""
     letters = string.ascii_uppercase + string.ascii_lowercase
-    return [
-        [
-            (
-                request.param,
-                [],
-                [f"file.{''.join(random.choices(letters, k=3))}" for _ in range(3)],
-            ),
-        ]
-    ]
+    file_names = [f"file.{''.join(random.choices(letters, k=3))}" for _ in range(3)]
+    file_names.append(f"file.{random.choice(teeb.default.audio_extentions).upper()}")
+    tree = [[(request.param, [], file_names)]]
+    return tree
 
 
 @pytest.fixture(
@@ -566,8 +561,12 @@ def test_files_with_upper_case_extension(album_with_mixed_case_file_extensions):
             album_path = instance[0][0]
             result = teeb.find.files_with_upper_case_extension(album_path)
             assert result is not None
+            assert any(
+                PosixPath(file_path).suffix[1:].lower() in teeb.default.audio_extentions
+                for file_path in result
+            )
             for file_path in result:
-                assert any(c.isupper() for c in file_path[-3:])
+                assert any(c.isupper() for c in PosixPath(file_path).suffix[1:])
                 assert file_path.startswith(os.path.join(album_path, "file."))
 
 
