@@ -796,3 +796,90 @@ def test_nested_album_art_album_layout_case_1(album_layout_case_1):
                         "case2": [],
                     }
                     assert result == expected
+
+
+def test_nested_album_art_album_layout_case_2a(album_layout_case_2a):
+    """Find nested album art of case 2a."""
+    for instance in album_layout_case_2a:
+        with mock.patch("os.walk", return_value=instance):
+            album_path = instance[0][0]
+            directories_in_album_directory = instance[0][1]
+            with mock.patch("os.listdir", return_value=directories_in_album_directory):
+                with mock.patch("os.path.isfile", return_value=False):
+                    result = teeb.find.nested_album_art(album_path)
+                    expected = {
+                        "case1": [],
+                        "case2": [
+                            {
+                                "art_dir": f"{album_path}/album_art",
+                                "art_files": ["cover.jpg", "back.jpg"],
+                                "parent_dir": PosixPath(album_path),
+                            }
+                        ],
+                    }
+                    assert result == expected
+
+
+def test_nested_album_art_album_layout_case_2b(album_layout_case_2b):
+    """Find nested album art of case 2b.
+    Album art found in the disc directories is omitted as it's in the right place.
+    """
+    for instance in album_layout_case_2b:
+        with mock.patch("os.walk", return_value=instance):
+            album_path = instance[0][0]
+            directories_in_album_directory = instance[0][1]
+            with mock.patch("os.listdir", return_value=directories_in_album_directory):
+                with mock.patch("os.path.isfile", return_value=False):
+                    result = teeb.find.nested_album_art(album_path)
+                    expected = {
+                        "case1": [],
+                        "case2": [
+                            {
+                                "art_dir": f"{album_path}/album_art",
+                                "art_files": ["cover.jpg", "back.jpg"],
+                                "parent_dir": PosixPath(album_path),
+                            }
+                        ],
+                    }
+                    assert result == expected
+
+
+def test_nested_album_art_album_layout_case_2c(album_layout_case_2c):
+    """Find nested album art of case 2c.
+    In this case album art is found:
+    * in a dedicated directory on the same level as disc directories
+    * in a dedicated directory in every disc directory
+    """
+    for instance in album_layout_case_2c:
+        with mock.patch("os.walk", return_value=instance):
+            album_path = instance[0][0]
+            expected = {
+                "case1": [],
+                "case2": [
+                    {
+                        "art_dir": album_path,
+                        "art_files": ["box_cover.jpg"],
+                        "parent_dir": PosixPath(album_path).parent,
+                    },
+                    {
+                        "art_dir": f"{album_path}/album_art",
+                        "art_files": ["cover.jpg", "box_back.jpg"],
+                        "parent_dir": PosixPath(album_path),
+                    },
+                    {
+                        "art_dir": f"{album_path}/cd1/album_art",
+                        "art_files": ["booklet.jpg", "cover.jpg", "back.jpg"],
+                        "parent_dir": PosixPath(f"{album_path}/cd1"),
+                    },
+                    {
+                        "art_dir": f"{album_path}/cd2/album_art",
+                        "art_files": ["booklet.jpg", "cover.jpg", "back.jpg"],
+                        "parent_dir": PosixPath(f"{album_path}/cd2"),
+                    },
+                ],
+            }
+            directories_in_album_directory = instance[0][1]
+            with mock.patch("os.listdir", return_value=directories_in_album_directory):
+                with mock.patch("os.path.isfile", return_value=False):
+                    result = teeb.find.nested_album_art(album_path)
+                    assert result == expected
