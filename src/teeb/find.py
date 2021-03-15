@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import logging
 import os
 from pathlib import Path
 from typing import (
@@ -258,7 +259,7 @@ def nested_album_art(directory: str) -> Dict[str, List[str]]:
             )
             if not audio_files:
                 path = Path(sub_dir)
-                # print(f"\n\nFound art folder without audio files: {sub_dir}")
+                logging.debug(f"Found art folder without audio files: {sub_dir}")
                 parent = path.parent
                 parent_files = [
                     name
@@ -274,34 +275,16 @@ def nested_album_art(directory: str) -> Dict[str, List[str]]:
                         )
                     )
                     if parent_audio_files:
-                        # print(
-                        #     f"CASE #1: There are audio files in album art "
-                        #     f"parent directory: {parent}\n"
-                        # )
+                        logging.debug(
+                            "CASE #1: There are audio files in album art parent "
+                            f"directory: {parent}"
+                        )
                         item = {
                             "art_dir": sub_dir,
                             "art_files": art_files,
                             "parent_dir": parent,
                         }
                         result["case1"].append(item)
-                    else:
-                        parent_directories = [
-                            name
-                            for name in os.listdir(parent)
-                            if is_not_preferred_case(path, parent, name)
-                        ]
-                        if parent_directories:
-                            # print(
-                            #     f"CASE #2: There are ONLY directories in album art "
-                            #     f"parent directory: {parent} -> {parent_directories}"
-                            #     "\n"
-                            # )
-                            item = {
-                                "art_dir": sub_dir,
-                                "art_files": art_files,
-                                "parent_dir": parent,
-                            }
-                            result["case2"].append(item)
                 else:
                     parent_directories = [
                         name
@@ -309,10 +292,10 @@ def nested_album_art(directory: str) -> Dict[str, List[str]]:
                         if is_not_preferred_case(path, parent, name)
                     ]
                     if parent_directories:
-                        # print(
-                        #     f"CASE #2: There are ONLY directories in album art "
-                        #     f"parent directory: {parent} -> {parent_directories}\n"
-                        # )
+                        logging.debug(
+                            "CASE #2: There are ONLY directories in album art parent "
+                            f"directory: {parent} -> {parent_directories}"
+                        )
                         item = {
                             "art_dir": sub_dir,
                             "art_files": art_files,
