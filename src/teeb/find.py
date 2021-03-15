@@ -260,6 +260,9 @@ def nested_album_art(directory: str) -> Dict[str, List[str]]:
             if not audio_files:
                 path = Path(sub_dir)
                 logging.debug(f"Found art folder without audio files: {sub_dir}")
+                if Path(directory) > path.parent or path == Path("."):
+                    logging.debug(f"Found art in audio-less album directory: {path}")
+                    continue
                 parent = path.parent
                 parent_files = [
                     name

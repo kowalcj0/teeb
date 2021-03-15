@@ -857,11 +857,6 @@ def test_nested_album_art_album_layout_case_2c(album_layout_case_2c):
                 "case1": [],
                 "case2": [
                     {
-                        "art_dir": album_path,
-                        "art_files": ["box_cover.jpg"],
-                        "parent_dir": PosixPath(album_path).parent,
-                    },
-                    {
                         "art_dir": f"{album_path}/album_art",
                         "art_files": ["cover.jpg", "box_back.jpg"],
                         "parent_dir": PosixPath(album_path),
