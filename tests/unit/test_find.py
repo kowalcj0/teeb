@@ -491,6 +491,25 @@ def album_layout_case_1(request: SubRequest) -> DirectoryTree:
         ALBUM_PATH_WITH_UTF8_CHARS,
     ]
 )
+def album_layout_case_1a(request: SubRequest) -> DirectoryTree:
+    return [
+        [
+            (request.param, ["album_art"], ["box.jpg"]),
+            (f"{request.param}/album_art", [], ["cover.jpg", "back.jpg"]),
+        ]
+    ]
+
+
+@pytest.fixture(
+    params=[
+        ABSOLUTE_ALBUM_PATH,
+        DOTTED_RELATIVE_ALBUM_PATH,
+        RELATIVE_ALBUM_PATH,
+        CURRENT_DIRECTORY,
+        CURRENT_SLASHED_DIRECTORY,
+        ALBUM_PATH_WITH_UTF8_CHARS,
+    ]
+)
 def album_layout_case_2a(request: SubRequest) -> DirectoryTree:
     return [
         [
@@ -566,6 +585,54 @@ def album_layout_case_2c(request: SubRequest) -> DirectoryTree:
                 [],
                 ["booklet.jpg", "cover.jpg", "back.jpg"],
             ),
+        ]
+    ]
+
+
+@pytest.fixture(
+    params=[
+        ABSOLUTE_ALBUM_PATH,
+        DOTTED_RELATIVE_ALBUM_PATH,
+        RELATIVE_ALBUM_PATH,
+        CURRENT_DIRECTORY,
+        CURRENT_SLASHED_DIRECTORY,
+        ALBUM_PATH_WITH_UTF8_CHARS,
+    ]
+)
+def album_layout_case_2d(request: SubRequest) -> DirectoryTree:
+    return [
+        [
+            (f"{request.param}/", ["cd2", "album_art", "cd1"], ["box_cover.jpg"]),
+            (f"{request.param}/album_art", [], ["cover.jpg", "box_back.jpg"]),
+            (
+                f"{request.param}/cd1",
+                [],
+                ["01-track_1.flac", "03-track_3.flac", "02-track_2.flac"],
+            ),
+            (
+                f"{request.param}/cd2",
+                [],
+                ["01-track_1.flac", "03-track_3.flac", "02-track_2.flac"],
+            ),
+        ]
+    ]
+
+
+@pytest.fixture(
+    params=[
+        ABSOLUTE_ALBUM_PATH,
+        DOTTED_RELATIVE_ALBUM_PATH,
+        RELATIVE_ALBUM_PATH,
+        CURRENT_DIRECTORY,
+        CURRENT_SLASHED_DIRECTORY,
+        ALBUM_PATH_WITH_UTF8_CHARS,
+    ]
+)
+def album_layout_case_2e(request: SubRequest) -> DirectoryTree:
+    return [
+        [
+            (f"{request.param}/", ["album_art"], ["box_cover.jpg"]),
+            (f"{request.param}/album_art", [], ["cover.jpg", "box_back.jpg"]),
         ]
     ]
 
@@ -711,6 +778,15 @@ def test_cue_files_and_audio_files_one_cue_and_one_audio_files(
                 assert item.audio_files[0].startswith("file.")
 
 
+def test_cue_files_and_audio_files_against_dir_without_cue_file(album_layout_preferred):
+    """An album dir without a CUE file"""
+    for instance in album_layout_preferred:
+        with mock.patch("os.walk", return_value=instance):
+            album_path = instance[0][0]
+            result = teeb.find.cue_files_and_audio_files(album_path)
+            assert not result
+
+
 def test_cue_files_and_audio_files_one_cue_and_multiple_audio_files(
     directory_with_one_cue_and_multiple_audio_file,
 ):
@@ -770,6 +846,16 @@ def test_empty_directories_multiple(empty_directories):
                 assert result
 
 
+def test_empty_directories_against_regular_album_dir(album_layout_preferred):
+    """No empty directories should be found"""
+    for instance in album_layout_preferred:
+        with mock.patch("os.walk", return_value=instance):
+            album_path = instance[0][0]
+            with mock.patch("os.listdir", return_value=[album_path]):
+                result = teeb.find.empty_directories(album_path)
+                assert not result
+
+
 def test_nested_album_art_preferred_layout(album_layout_preferred):
     """No nested album art of any type should be reported for preferred album layout."""
     for instance in album_layout_preferred:
@@ -808,6 +894,18 @@ def test_nested_album_art_album_layout_case_1(album_layout_case_1):
                         "case2": [],
                     }
                     assert result == expected
+
+
+def test_nested_album_art_album_layout_case_1a(album_layout_case_1a):
+    """Find a nested dedicated album art in a directory without audio files."""
+    for instance in album_layout_case_1a:
+        with mock.patch("os.walk", return_value=instance):
+            album_path = instance[0][0]
+            files_in_parent_directory = instance[0][2]
+            with mock.patch("os.listdir", return_value=files_in_parent_directory):
+                with mock.patch("os.path.isfile", return_value=True):
+                    result = teeb.find.nested_album_art(album_path)
+                    assert result == {"case1": [], "case2": []}
 
 
 def test_nested_album_art_album_layout_case_2a(album_layout_case_2a):
@@ -890,3 +988,37 @@ def test_nested_album_art_album_layout_case_2c(album_layout_case_2c):
                 with mock.patch("os.path.isfile", return_value=False):
                     result = teeb.find.nested_album_art(album_path)
                     assert result == expected
+
+
+def test_nested_album_art_no_audio_files_in_parent_directory(album_layout_case_2d):
+    """Find dedicated album art directory at the root album directory."""
+    for instance in album_layout_case_2d:
+        with mock.patch("os.walk", return_value=instance):
+            album_path = instance[0][0]
+            expected = {
+                "case1": [],
+                "case2": [
+                    {
+                        "art_dir": f"{album_path}album_art",
+                        "art_files": ["cover.jpg", "box_back.jpg"],
+                        "parent_dir": PosixPath(album_path),
+                    },
+                ],
+            }
+            directories_in_album_directory = instance[0][1]
+            with mock.patch("os.listdir", return_value=directories_in_album_directory):
+                with mock.patch("os.path.isfile", return_value=False):
+                    result = teeb.find.nested_album_art(album_path)
+                    assert result == expected
+
+
+def test_nested_album_art_no_audio_files(album_layout_case_2e):
+    """Find dedicated album art directory at the root album directory."""
+    for instance in album_layout_case_2e:
+        with mock.patch("os.walk", return_value=instance):
+            album_path = instance[0][0]
+            directories_in_album_directory = instance[0][1]
+            with mock.patch("os.listdir", return_value=directories_in_album_directory):
+                with mock.patch("os.path.isfile", return_value=False):
+                    result = teeb.find.nested_album_art(album_path)
+                    assert result == {"case1": [], "case2": []}
