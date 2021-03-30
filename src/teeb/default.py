@@ -21,7 +21,6 @@ redundant_text_files = [
     "eac_screen.png",
     "folder.aucdtect.txt",
     "gap_test.png",
-    "torrent downloaded from demonoid.com.txt",
     "cduniverse.txt",
     "fingerprint.ffp.txt",
     "fingerprint.txt",

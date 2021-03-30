@@ -30,6 +30,46 @@ CURRENT_SLASHED_DIRECTORY = "./"
 ALBUM_PATH_WITH_UTF8_CHARS = "/ｕｔｆ８/рɑｔｈ tо/ＡＬᏴ⋃ⅿ"
 
 
+def get_file_names(
+    *,
+    add_all: bool = False,
+    audio: bool = True,
+    art: bool = True,
+    ignored: bool = False,
+    text: bool = False,
+    change_extension: bool = False,
+    art_to_convert: bool = False,
+) -> List[str]:
+    if add_all:
+        audio = art = ignored = text = change_extension = art_to_convert = True
+
+    file_names = []
+    if audio:
+        audio_extension = random.choice(teeb.default.audio_extentions)
+        audio_files = [f"{idx+1:02}-track_title.{audio_extension}" for idx in range(3)]
+        file_names.extend(audio_files)
+    if art:
+        art_files = ["cover.jpg", "back.jpg", "cd.jpg", "inlay.jpg"]
+        file_names.extend(art_files)
+    if ignored:
+        ignored = [f"file.{extension}" for extension in teeb.default.ignored_extensions]
+        file_names.extend(ignored)
+    if text:
+        file_names.extend(teeb.default.redundant_text_files)
+    if change_extension:
+        files_with_extension_to_change = [
+            f"file.{extension}" for extension in teeb.default.change_extension_mapping
+        ]
+        file_names.extend(files_with_extension_to_change)
+    if art_to_convert:
+        files_to_convert = [
+            f"file.{extension}"
+            for extension in teeb.default.album_art_extentions_to_convert
+        ]
+        file_names.extend(files_to_convert)
+    return file_names
+
+
 @pytest.fixture(
     params=[
         ABSOLUTE_ALBUM_PATH,
@@ -56,7 +96,7 @@ def album_with_ignored_files(request: SubRequest) -> DirectoryTree:
             (
                 request.param,
                 [],
-                [f"file.{extension}" for extension in teeb.default.ignored_extensions],
+                get_file_names(add_all=True),
             ),
         ]
     ]
@@ -79,7 +119,7 @@ def album_with_extra_text_files(request: SubRequest) -> DirectoryTree:
             (
                 request.param,
                 [],
-                [filename for filename in teeb.default.redundant_text_files],
+                get_file_names(add_all=True),
             ),
         ]
     ]
@@ -120,14 +160,7 @@ def album_with_files_that_need_an_extension_change(
     """Return a directory tree with files that need their extension changed."""
     return [
         [
-            (
-                request.param,
-                [],
-                [
-                    f"file.{extension}"
-                    for extension in teeb.default.change_extension_mapping
-                ],
-            ),
+            (request.param, [], get_file_names(add_all=True)),
         ]
     ]
 
@@ -152,6 +185,7 @@ def album_with_directory_and_file_paths_containing_spaces(
                 [
                     "file name with spaces in it.ext",
                     "another_file.name with spaces .ext",
+                    "file_name_with_underscores.ext",
                 ],
             ),
         ]
@@ -173,14 +207,7 @@ def album_with_art_files_that_need_conversion(request: SubRequest) -> DirectoryT
     bmp to jpg."""
     return [
         [
-            (
-                request.param,
-                [],
-                [
-                    f"file.{extension}"
-                    for extension in teeb.default.album_art_extentions_to_convert
-                ],
-            ),
+            (request.param, [], get_file_names(art_to_convert=True)),
         ]
     ]
 
@@ -232,6 +259,7 @@ def album_with_art_files_that_dont_need_filename_change(
                     "inside.jpg",
                     "matrix.jpg",
                     "obi.jpg",
+                    "album.nfo",
                 ],
             ),
         ]
@@ -401,16 +429,7 @@ def album_layout_preferred(request: SubRequest) -> DirectoryTree:
             (
                 request.param,
                 [],
-                [
-                    "101-Album_Artist_-_Track_Title_01.flac",
-                    "102-Album_Artist_-_Track_Title_02.flac",
-                    "103-Album_Artist_-_Track_Title_03.flac",
-                    "201-Album_Artist_-_Track_Title_01.flac",
-                    "202-Album_Artist_-_Track_Title_02.flac",
-                    "203-Album_Artist_-_Track_Title_03.flac",
-                    "cover.jpg",
-                    "back.jpg",
-                ],
+                get_file_names(),
             )
         ]
     ]
@@ -433,14 +452,7 @@ def album_layout_preferred_no_album_art(request: SubRequest) -> DirectoryTree:
             (
                 request.param,
                 [],
-                [
-                    "101-Album_Artist_-_Track_Title_01.flac",
-                    "102-Album_Artist_-_Track_Title_02.flac",
-                    "103-Album_Artist_-_Track_Title_03.flac",
-                    "201-Album_Artist_-_Track_Title_01.flac",
-                    "202-Album_Artist_-_Track_Title_02.flac",
-                    "203-Album_Artist_-_Track_Title_03.flac",
-                ],
+                get_file_names(art=False),
             )
         ]
     ]
