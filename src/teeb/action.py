@@ -6,13 +6,14 @@ from subprocess import Popen
 
 from send2trash import send2trash
 from wand.image import Image
+from wand.exceptions import WandRuntimeError
 
 import teeb.suggest
 from teeb.cueparser import CueParser
 from teeb.default import change_extension_mapping
+from teeb import find
 from teeb.find import (
     album_art_files_to_convert,
-    album_art_jpg_files,
     cue_files_and_audio_files,
     directory_and_file_paths_with_spaces,
     empty_directories,
@@ -206,13 +207,16 @@ def convert_album_art_to_jpg(directory):
         if decision == "y":
             for path in filepaths:
                 new_path = path[: len(path) - len(Path(path).suffix)] + ".jpg"
-                with Image(filename=path) as image:
-                    image.compression_quality = 90
-                    image.save(filename=new_path)
-                    try:
-                        os.remove(path)
-                    except OSError as err:
-                        print(err)
+                try:
+                    with Image(filename=path) as image:
+                        image.compression_quality = 90
+                        image.save(filename=new_path)
+                        try:
+                            os.remove(path)
+                        except OSError as err:
+                            print(err)
+                except WandRuntimeError as err:
+                    print(f"Failed to convert '{path}' to jpg because of: {err}")
             print("Converted all album art to jpg")
         elif decision == "q":
             print("Quit")
@@ -317,7 +321,7 @@ def process_command(command, *, stdout=None):
     and the second is a tuple of stdout and stderr output.
     """
     print(f"Executing shell command: {command}")
-    prc = Popen(command, shell=True, stdout=stdout)
+    prc = Popen(command, shell=True, stdout=stdout, executable="/bin/bash")
     std = prc.communicate()
     return prc.returncode, std
 
@@ -408,7 +412,13 @@ def what_to_do_with_cue(directory):
                         send2trash(cue_path)
                         print(f"Moved '{cue_path}' to trash bin")
                     elif cue_decision == "p":
-                        cmd = f"flacon -s '{cue_path}'"
+                        escaped_cue_path = (
+                            cue_path.replace(" ", "\ ")
+                            .replace("'", "\\'")
+                            .replace("(", "\(")
+                            .replace(")", "\)")
+                        )
+                        cmd = f"flacon -s {escaped_cue_path}"
                         return_code, std = process_command(cmd)
                         if return_code == 0:
                             print(f"Flacon successfully processed '{cue_path}'")
@@ -501,7 +511,7 @@ def what_to_do_with_cue(directory):
                     print(
                         "CUE Titles:\n*",
                         "\n* ".join(
-                            f'{t.get("TRACK_NUM")} - {t.get("TITLE", "NO TITLE ENTRY")}'
+                            f"{t.get('TRACK_NUM')} - {t.get('TITLE', 'NO TITLE ENTRY')}"
                             for t in sorted(cue.tracks, key=lambda t: t["TRACK_NUM"])
                         ),
                     )
@@ -526,21 +536,26 @@ def what_to_do_with_cue(directory):
                     cue_file = cue_dir.cues[0]
                     cue_path = os.path.join(cue_dir.dir, cue_file)
                     cue = CueParser(cue_path)
-                    print(
-                        f"\n\nOnly {len(cue_dir.audio_files)} audio file "
-                        f"'{cue_dir.audio_files[0]}' in '{cue_dir.dir}'"
-                    )
-                    print(
-                        f"Looks like it should be split into {len(cue.tracks)} tracks "
-                        f"defined in '{cue_file}':"
-                    )
-                    print(
-                        "CUE Tracks:\n*",
-                        "\n* ".join(
-                            f'{t.get("TRACK_NUM")} - {t.get("TITLE", "NO TITLE ENTRY")}'
-                            for t in sorted(cue.tracks, key=lambda t: t["TRACK_NUM"])
-                        ),
-                    )
+                    if not cue_dir.audio_files:
+                        print(f"Found cue file without audio files: {cue_dir}")
+                    else:
+                        print(
+                            f"\n\nOnly {len(cue_dir.audio_files)} audio file "
+                            f"'{cue_dir.audio_files[0]}' in '{cue_dir.dir}'"
+                        )
+                        print(
+                            f"Looks like it should be split into {len(cue.tracks)} tracks "
+                            f"defined in '{cue_file}':"
+                        )
+                        print(
+                            "CUE Tracks:\n*",
+                            "\n* ".join(
+                                f"{t.get('TRACK_NUM')} - {t.get('TITLE', 'NO TITLE ENTRY')}"
+                                for t in sorted(
+                                    cue.tracks, key=lambda t: t["TRACK_NUM"]
+                                )
+                            ),
+                        )
 
                 cue_decision = prompt(
                     "Would you like to split those cue files with Flacon and delete "
@@ -553,7 +568,14 @@ def what_to_do_with_cue(directory):
                         cue_file = cue_dir.cues[0]
                         cue_path = os.path.join(cue_dir.dir, cue_file)
                         cue = CueParser(cue_path)
-                        cmd = f"flacon -s '{cue_path}'"
+                        escaped_cue_path = (
+                            cue_path.replace(" ", "\ ")
+                            .replace("'", "\\'")
+                            .replace("(", "\(")
+                            .replace(")", "\)")
+                        )
+                        cmd = f"flacon -s {escaped_cue_path}"
+                        print(cmd)
                         return_code, std = process_command(cmd)
                         if return_code == 0:
                             print(f"Flacon successfully processed '{cue_path}'")
@@ -604,7 +626,7 @@ def what_to_do_with_cue(directory):
 
 
 def clean_up_jpg_album_art_file_names(directory):
-    filepaths = album_art_jpg_files(directory)
+    filepaths = find.album_art_files(directory)
     if not filepaths:
         print(f"No jpg album art files found to clean-up in: {directory}")
     else:
@@ -620,7 +642,7 @@ def clean_up_jpg_album_art_file_names(directory):
                 for file in files:
                     extension = Path(file).suffix[1:]
                     filename = Path(file).name
-                    if extension == "jpg":
+                    if extension in ["jpg", "png"]:
                         suggestions = teeb.suggest.new_art_file_name(filename)
                         if suggestions:
                             album_art_files.append((file, suggestions))
@@ -631,7 +653,7 @@ def clean_up_jpg_album_art_file_names(directory):
                             print(f"    {filename} -> {suggestions[0]}")
                         else:
                             txt_suggestions = "; ".join(
-                                f"({idx+1}): {sug}"
+                                f"({idx + 1}): {sug}"
                                 for idx, sug in enumerate(suggestions)
                             )
                             print(f"    {filename} -> {txt_suggestions}")

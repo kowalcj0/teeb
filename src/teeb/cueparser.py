@@ -9,6 +9,7 @@ Improvements:
     * support Cue Sheets with multiple FILE entries
     * support extra fields: ISRC, PREGAP etc
 """
+
 import logging
 from copy import deepcopy
 
@@ -43,7 +44,11 @@ class CueParser:
 
         for line in lines:
             if line.strip():
-                command, args = line.strip().split(" ", 1)
+                try:
+                    command, args = line.strip().split(" ", 1)
+                except ValueError:
+                    print(f"Skipping invalid line: {line}")
+                    continue
                 logging.debug(f"Command `{command}`. Args: {args}")
                 method = getattr(self, f"_cmd_{command.lower()}", None)
                 if method is not None:

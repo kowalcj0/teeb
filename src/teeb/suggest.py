@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from pathlib import Path
 from typing import (
     List,
     Optional,
@@ -11,65 +12,72 @@ def new_art_file_name(filename: str) -> Optional[List[str]]:
     Returns a sorted of file name suggestions.
     """
     clean_names = [
-        "inlay.jpg",
-        "cover.jpg",
-        "cover_out.jpg",
-        "inside.jpg",
-        "back.jpg",
-        "matrix.jpg",
-        "obi.jpg",
-        "disc.jpg",
-        "cd.jpg",
-        "cd1.jpg",
-        "cd2.jpg",
-        "cd3.jpg",
-        "cd4.jpg",
-        "cd5.jpg",
-        "cd6.jpg",
-        "cd7.jpg",
-        "cd8.jpg",
-        "cd9.jpg",
-        "cd_1.jpg",
-        "cd_2.jpg",
-        "cd_3.jpg",
-        "cd_4.jpg",
-        "cd_5.jpg",
-        "cd_6.jpg",
-        "cd_7.jpg",
-        "cd_8.jpg",
-        "cd_9.jpg",
+        "inlay",
+        "cover",
+        "cover_out",
+        "inside",
+        "back",
+        "matrix",
+        "obi",
+        "disc",
+        "cd",
+        "cd1",
+        "cd2",
+        "cd3",
+        "cd4",
+        "cd5",
+        "cd6",
+        "cd7",
+        "cd8",
+        "cd9",
+        "cd_1",
+        "cd_2",
+        "cd_3",
+        "cd_4",
+        "cd_5",
+        "cd_6",
+        "cd_7",
+        "cd_8",
+        "cd_9",
     ]
-    if filename in clean_names:
+
+    file_path = Path(filename)
+    name = file_path.name
+    extension = Path(file_path).suffix.lower()
+
+    if name in clean_names:
         return None
 
     suggestions = set()
     if "inlay" in filename:
-        suggestions.add("inlay.jpg")
+        suggestions.add("inlay")
     if "przod" in filename:
-        suggestions.add("cover.jpg")
+        suggestions.add("cover")
     if "folder" in filename:
-        suggestions.add("cover.jpg")
+        suggestions.add("cover")
     if "front" in filename:
-        suggestions.add("cover.jpg")
+        suggestions.add("cover")
     if "cover" in filename:
-        suggestions.add("cover.jpg")
+        suggestions.add("cover")
     if "cover" in filename and "out" in filename:
-        suggestions.add("cover_out.jpg")
+        suggestions.add("cover_out")
     if "srodek" in filename:
-        suggestions.add("inside.jpg")
+        suggestions.add("inside")
     if "inside" in filename:
-        suggestions.add("inside.jpg")
+        suggestions.add("inside")
     if "tyl" in filename:
-        suggestions.add("back.jpg")
+        suggestions.add("back")
     if "cd" in filename:
-        suggestions.add("cd.jpg")
+        suggestions.add("cd")
     if "disc" in filename:
-        suggestions.add("disc.jpg")
+        suggestions.add("disc")
     if "matrix" in filename:
-        suggestions.add("matrix.jpg")
+        suggestions.add("matrix")
     if "obi" in filename:
-        suggestions.add("obi.jpg")
+        suggestions.add("obi")
     if "back" in filename:
-        suggestions.add("back.jpg")
+        suggestions.add("back")
+
+    suggestions = {f"{name}{extension}" for name in suggestions}
 
     return sorted(list(suggestions)) if suggestions.difference({filename}) else None

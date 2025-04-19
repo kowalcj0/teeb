@@ -98,7 +98,7 @@ def album_art_files_to_convert(directory: str) -> List[str]:
     return result
 
 
-def album_art_jpg_files(
+def album_art_files(
     directory: str,
 ) -> List[Optional[Tuple[str, Optional[List[str]]]]]:
     """Find all jpg album art that might need a file name change."""
@@ -107,7 +107,7 @@ def album_art_jpg_files(
         for file in files:
             extension = Path(file).suffix[1:]
             filename = Path(file).name
-            if extension == "jpg":
+            if extension in ["jpg", "png"]:
                 suggestions = teeb.suggest.new_art_file_name(filename)
                 if suggestions:
                     result.append((file, suggestions))
@@ -250,7 +250,7 @@ def nested_album_art(directory: str) -> Dict[str, List[str]]:
         "case2": [],
     }
     for sub_dir, _, files in os.walk(directory):
-        art_files = [name for name in files if Path(name).suffix[1:] == "jpg"]
+        art_files = [name for name in files if Path(name).suffix[1:] in ["jpg", "png"]]
         if art_files:
             audio_files = list(
                 filter(
