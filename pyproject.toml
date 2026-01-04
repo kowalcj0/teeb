@@ -5,19 +5,19 @@ description = "Simple music album pre-tagging cleaner."
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "chardet>=5.2.0",
-    "pre-commit>=4.2.0",
-    "ruff>=0.11.6",
-    "send2trash>=1.8.3",
-    "wand>=0.6.13",
+    "chardet",
+    "pre-commit",
+    "ruff",
+    "send2trash",
+    "wand",
 ]
 
 [dependency-groups]
 dev = [
-    "behave>=1.2.6",
-    "ipdb>=0.13.13",
-    "pytest>=8.3.5",
-    "pytest-cov>=6.1.1",
+    "behave",
+    "ipdb",
+    "pytest",
+    "pytest-cov",
 ]
 
 [tool.pytest.ini_options]
