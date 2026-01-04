@@ -26,7 +26,7 @@ from teeb.find import (
 from teeb.prompt import prompt
 
 
-def delete_extra_files(directory):
+def delete_extra_files(directory: str) -> None:
     filepaths = extra_files(directory)
     if not filepaths:
         print(f"No extra files found in: {directory}")
@@ -50,7 +50,7 @@ def delete_extra_files(directory):
             print("Skipped deleting extra files")
 
 
-def delete_extra_text_files(directory):
+def delete_extra_text_files(directory: str) -> None:
     filepaths = extra_text_files(directory)
     if not filepaths:
         print(f"No extra text files found in: {directory}")
@@ -74,7 +74,7 @@ def delete_extra_text_files(directory):
             print("Skipped deleting extra text files")
 
 
-def lower_extentions(directory):
+def lower_extentions(directory: str) -> None:
     filepaths = files_with_upper_case_extension(directory)
     if not filepaths:
         print(f"No files found with upper case extensions in: {directory}")
@@ -100,7 +100,7 @@ def lower_extentions(directory):
             print("Skipped changing extensions to lower case")
 
 
-def non_audio_files_to_lower_case(directory):
+def non_audio_files_to_lower_case(directory: str) -> None:
     filepaths = non_audio_files_with_upper_case_characters(directory)
     if not filepaths:
         print(f"No non-audio files found with upper case characters in: {directory}")
@@ -128,7 +128,7 @@ def non_audio_files_to_lower_case(directory):
             print("Skipped changing non-audio file names to lower case")
 
 
-def change_extensions(directory):
+def change_extensions(directory: str) -> None:
     filepaths = files_to_change_extension(directory)
     if not filepaths:
         print(f"No files found to change extensions in: {directory}")
@@ -157,7 +157,7 @@ def change_extensions(directory):
             print("Skipped changing extensions")
 
 
-def replace_spaces_with_underscores(directory):
+def replace_spaces_with_underscores(directory: str) -> None:
     filepaths = directory_and_file_paths_with_spaces(directory)
     if not filepaths:
         print(f"No directories or files with white spaces found in: {directory}")
@@ -192,7 +192,7 @@ def replace_spaces_with_underscores(directory):
             print("Skipped replacing white spaces with underscores")
 
 
-def convert_album_art_to_jpg(directory):
+def convert_album_art_to_jpg(directory: str) -> None:
     filepaths = album_art_files_to_convert(directory)
     if not filepaths:
         print("Non album art files found to convert to jpg")
@@ -223,7 +223,7 @@ def convert_album_art_to_jpg(directory):
             print("Skipped converting all album art to jpg")
 
 
-def move_album_art_files_to_album_dir(directory):
+def move_album_art_files_to_album_dir(directory: str) -> None:
     art_directories = nested_album_art(directory)
     if art_directories["case1"]:
         print(
@@ -313,7 +313,9 @@ def move_album_art_files_to_album_dir(directory):
         print("No album art directories of first type! :)")
 
 
-def process_command(command, *, stdout=None):
+def process_command(
+    command: str, *, stdout=None
+) -> tuple[int, tuple[bytes, bytes] | None]:
     """Executes shell command with subprocess.Popen.
     Returns tuple, where first element is a process return code,
     and the second is a tuple of stdout and stderr output.
@@ -324,7 +326,7 @@ def process_command(command, *, stdout=None):
     return prc.returncode, std
 
 
-def delete_empty_directories(directory):
+def delete_empty_directories(directory: str) -> None:
     empty = empty_directories(directory)
     if empty:
         print(f"Found {len(empty)} empty directories.")
@@ -347,7 +349,7 @@ def delete_empty_directories(directory):
         print("No empty directories found")
 
 
-def what_to_do_with_cue(directory):
+def what_to_do_with_cue(directory: str) -> None:
     cue_directories = cue_files_and_audio_files(directory)
     if not cue_directories:
         print(f"No cue files found in: {directory}")
@@ -619,7 +621,7 @@ def what_to_do_with_cue(directory):
             print("Skipped cleaning up directories with cue files")
 
 
-def clean_up_jpg_album_art_file_names(directory):
+def clean_up_jpg_album_art_file_names(directory: str) -> None:
     filepaths = find.album_art_files(directory)
     if not filepaths:
         print(f"No jpg album art files found to clean-up in: {directory}")

@@ -18,7 +18,7 @@ import chardet
 class CueParser:
     """Simple Cue Sheet file parser."""
 
-    def __init__(self, cue_file):
+    def __init__(self, cue_file: str) -> None:
         self._context_global: dict[str, str | None] = {
             "PERFORMER": "Unknown",
             "SONGWRITER": None,
@@ -79,21 +79,21 @@ class CueParser:
                 del self.tracks[idx]["FILE"]
 
     @property
-    def meta(self):
+    def meta(self) -> dict[str, str | None]:
         """Returns a dictionary with global CD data."""
         return self._context_global
 
     @property
-    def tracks(self):
+    def tracks(self) -> list[dict[str, str]]:
         """Returns a list of dictionaries with individual
         tracks data. Note that some of the data is borrowed from global data.
         """
         return self._context_tracks
 
-    def _unquote(self, in_str):
+    def _unquote(self, in_str: str) -> str:
         return in_str.strip(' "')
 
-    def _timestr_to_sec(self, timestr):
+    def _timestr_to_sec(self, timestr: str) -> int:
         """Converts `mm:ss:` time string into seconds integer."""
         splitted = timestr.split(":")[:-1]
         splitted.reverse()
@@ -105,7 +105,7 @@ class CueParser:
             seconds += int(chunk) * factor
         return seconds
 
-    def _timestr_to_samples(self, timestr):
+    def _timestr_to_samples(self, timestr: str) -> int:
         """Converts `mm:ss:ff` time string into samples integer, assuming the
         CD sampling rate of 44100Hz."""
         seconds_factor = 44100
@@ -115,10 +115,10 @@ class CueParser:
         frames = int(timestr.split(":")[-1])
         return full_seconds * seconds_factor + frames * frames_factor
 
-    def _in_global_context(self):
+    def _in_global_context(self) -> bool:
         return self._current_context == self._context_global
 
-    def _cmd_rem(self, args):
+    def _cmd_rem(self, args: str) -> None:
         try:
             sub_command, sub_args = args.split(" ", 1)
         except ValueError:
@@ -128,49 +128,49 @@ class CueParser:
                 sub_args = self._unquote(sub_args)
             self._current_context[sub_command.upper()] = sub_args
 
-    def _cmd_performer(self, args):
+    def _cmd_performer(self, args: str) -> None:
         unquoted = self._unquote(args)
         self._current_context["PERFORMER"] = unquoted
 
-    def _cmd_title(self, args):
+    def _cmd_title(self, args: str) -> None:
         unquoted = self._unquote(args)
         if self._in_global_context():
             self._current_context["ALBUM"] = unquoted
         else:
             self._current_context["TITLE"] = unquoted
 
-    def _cmd_isrc(self, args):
+    def _cmd_isrc(self, args: str) -> None:
         unquoted = self._unquote(args)
         self._current_context["ISRC"] = unquoted
 
-    def _cmd_comment(self, args):
+    def _cmd_comment(self, args: str) -> None:
         unquoted = self._unquote(args)
         self._current_context["COMMENT"] = unquoted
 
-    def _cmd_catalog(self, args):
+    def _cmd_catalog(self, args: str) -> None:
         unquoted = self._unquote(args)
         self._current_context["CATALOG"] = unquoted
 
-    def _cmd_flags(self, args):
+    def _cmd_flags(self, args: str) -> None:
         unquoted = self._unquote(args)
         self._current_context["FLAGS"] = unquoted
 
-    def _cmd_pregap(self, args):
+    def _cmd_pregap(self, args: str) -> None:
         unquoted = self._unquote(args)
         self._current_context["PREGAP"] = unquoted
 
-    def _cmd_file(self, args):
+    def _cmd_file(self, args: str) -> None:
         filename = self._unquote(args.rsplit(" ", 1)[0])
         self._current_file_context = filename
         if not self._current_context["FILE"]:
             self._current_context["FILE"] = filename
 
-    def _cmd_index(self, args):
+    def _cmd_index(self, args: str) -> None:
         time_str = args.split()[1]
         self._current_context["INDEX"] = time_str
         self._current_context["POS_START_SAMPLES"] = self._timestr_to_samples(time_str)
 
-    def _cmd_track(self, args):
+    def _cmd_track(self, args: str) -> None:
         num, _ = args.split()
         new_track_context = deepcopy(self._context_global)
         self._context_tracks.append(new_track_context)

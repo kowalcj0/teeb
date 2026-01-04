@@ -15,7 +15,7 @@ from teeb.action import (
 )
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("-d", "--dir", help="dir to organise")
     args = parser.parse_args()
