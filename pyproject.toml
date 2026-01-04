@@ -12,6 +12,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "basedpyright",
     "behave",
     "ipdb",
     "pre-commit",
@@ -32,10 +33,8 @@ testpaths = [
 
 [tool.basedpyright]
 include = ["src"]
-exclude = [
-    "**/__pycache__",
-]
+reportMissingTypeStubs = false
 executionEnvironments = [
-  { root = "src/tests", reportPrivateUsage = false, extraPaths = ["src/tests/e2e", "src/sdk" ]},
+  { root = "src/tests", reportPrivateUsage = false},
   { root = "src" }
 ]
