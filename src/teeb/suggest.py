@@ -9,7 +9,7 @@ from typing import (
 def new_art_file_name(filename: str) -> Optional[List[str]]:
     """Suggest a file name change.
 
-    Returns a sorted of file name suggestions.
+    Returns a sorted list of file name suggestions.
     """
     clean_names = [
         "inlay",

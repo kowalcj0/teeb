@@ -3,6 +3,7 @@
 
 UTF8 Visual Spoofing done with https://www.irongeek.com/homoglyph-attack-generator.php
 """
+
 import os
 import random
 import string
@@ -46,7 +47,9 @@ def get_file_names(
     file_names = []
     if audio:
         audio_extension = random.choice(teeb.default.audio_extentions)
-        audio_files = [f"{idx+1:02}-track_title.{audio_extension}" for idx in range(3)]
+        audio_files = [
+            f"{idx + 1:02}-track_title.{audio_extension}" for idx in range(3)
+        ]
         file_names.extend(audio_files)
     if art:
         art_files = ["cover.jpg", "back.jpg", "cd.jpg", "inlay.jpg"]
@@ -736,25 +739,25 @@ def test_album_art_files_to_convert(album_with_art_files_that_need_conversion):
             ]
 
 
-def test_album_art_jpg_files_that_dont_need_file_name_change(
+def test_album_art_files_that_dont_need_file_name_change(
     album_with_art_files_that_dont_need_filename_change,
 ):
     """An album art file with correct name shouldn't need a file name change."""
     for instance in album_with_art_files_that_dont_need_filename_change:
         with mock.patch("os.walk", return_value=instance):
             album_path = instance[0][0]
-            result = teeb.find.album_art_jpg_files(album_path)
+            result = teeb.find.album_art_files(album_path)
             assert result == []
 
 
-def test_album_art_jpg_files_that_get_single_file_name_change_suggestion(
+def test_album_art_files_that_get_single_file_name_change_suggestion(
     album_with_art_files_that_need_filename_change,
 ):
     """An album art file with invalid name should need a file name change."""
     for instance in album_with_art_files_that_need_filename_change:
         with mock.patch("os.walk", return_value=instance):
             album_path = instance[0][0]
-            result = teeb.find.album_art_jpg_files(album_path)
+            result = teeb.find.album_art_files(album_path)
             assert result
             # Every item on the result list should be a tuple consisting of:
             # a filename & a list with a single suggestion

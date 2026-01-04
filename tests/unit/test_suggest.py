@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """Unit tests for file name suggestion functions."""
+
 from typing import (
     List,
     Optional,
@@ -11,7 +12,7 @@ import teeb.suggest
 
 
 @pytest.mark.parametrize(
-    "filename,expected_suggestions",
+    ["filename", "expected_suggestions"],
     [
         ("back.jpg", None),
         ("cd.jpg", None),
