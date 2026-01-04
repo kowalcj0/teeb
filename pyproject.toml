@@ -29,3 +29,13 @@ pythonpath = [
 testpaths = [
     "tests",
 ]
+
+[tool.basedpyright]
+include = ["src"]
+exclude = [
+    "**/__pycache__",
+]
+executionEnvironments = [
+  { root = "src/tests", reportPrivateUsage = false, extraPaths = ["src/tests/e2e", "src/sdk" ]},
+  { root = "src" }
+]

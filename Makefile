@@ -1,7 +1,7 @@
 
 .PHONY: tests
 tests:
-	uv run pytest --cov --cov-append tests
+	uv run pytest --cov --cov-append src/tests
 
 .PHONY: clean
 clean:
