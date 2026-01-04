@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 ignored_extensions = [
     "accurip",
     "exe",

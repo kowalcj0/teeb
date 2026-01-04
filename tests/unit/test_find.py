@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Unit tests for dir & file find functions.
 
 UTF8 Visual Spoofing done with https://www.irongeek.com/homoglyph-attack-generator.php

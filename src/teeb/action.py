@@ -1,17 +1,16 @@
-# -*- coding: utf-8 -*-
 import os
 import sys
 from pathlib import Path
 from subprocess import Popen
 
 from send2trash import send2trash
-from wand.image import Image
 from wand.exceptions import WandRuntimeError
+from wand.image import Image
 
 import teeb.suggest
+from teeb import find
 from teeb.cueparser import CueParser
 from teeb.default import change_extension_mapping
-from teeb import find
 from teeb.find import (
     album_art_files_to_convert,
     cue_files_and_audio_files,

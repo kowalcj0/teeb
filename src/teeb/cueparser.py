@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Modified version of a Cue Sheet parser from idlesign.
 https://github.com/idlesign/deflacue/blob/master/deflacue/deflacue.py

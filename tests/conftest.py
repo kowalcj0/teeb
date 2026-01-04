@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
 """Config file for PyTest"""
+
 import os
 
 from pytest import fixture

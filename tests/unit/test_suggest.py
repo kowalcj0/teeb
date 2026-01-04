@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Unit tests for file name suggestion functions."""
 
 from typing import (
