@@ -6,8 +6,6 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "chardet",
-    "pre-commit",
-    "ruff",
     "send2trash",
     "wand",
 ]
@@ -16,8 +14,10 @@ dependencies = [
 dev = [
     "behave",
     "ipdb",
+    "pre-commit",
     "pytest",
     "pytest-cov",
+    "ruff",
 ]
 
 [tool.pytest.ini_options]

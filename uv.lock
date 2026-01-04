@@ -522,8 +522,6 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "chardet" },
-    { name = "pre-commit" },
-    { name = "ruff" },
     { name = "send2trash" },
     { name = "wand" },
 ]
@@ -532,15 +530,15 @@ dependencies = [
 dev = [
     { name = "behave" },
     { name = "ipdb" },
+    { name = "pre-commit" },
     { name = "pytest" },
     { name = "pytest-cov" },
+    { name = "ruff" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "chardet" },
-    { name = "pre-commit" },
-    { name = "ruff" },
     { name = "send2trash" },
     { name = "wand" },
 ]
@@ -549,8 +547,10 @@ requires-dist = [
 dev = [
     { name = "behave" },
     { name = "ipdb" },
+    { name = "pre-commit" },
     { name = "pytest" },
     { name = "pytest-cov" },
+    { name = "ruff" },
 ]
 
 [[package]]
