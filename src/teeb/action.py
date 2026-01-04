@@ -134,8 +134,7 @@ def change_extensions(directory):
         print(f"No files found to change extensions in: {directory}")
     else:
         print(
-            f"Found {len(filepaths)} files to change extensions: "
-            f"{change_extension_mapping}"
+            f"Found {len(filepaths)} files to change extensions: {change_extension_mapping}"
         )
         for path in filepaths:
             print(path)
@@ -557,8 +556,7 @@ def what_to_do_with_cue(directory):
                         )
 
                 cue_decision = prompt(
-                    "Would you like to split those cue files with Flacon and delete "
-                    "them afterwards?",
+                    "Would you like to split those cue files with Flacon and delete them afterwards?",
                     ["p", "s", "q"],
                 )
 
@@ -568,10 +566,10 @@ def what_to_do_with_cue(directory):
                         cue_path = os.path.join(cue_dir.dir, cue_file)
                         cue = CueParser(cue_path)
                         escaped_cue_path = (
-                            cue_path.replace(" ", "\ ")
-                            .replace("'", "\\'")
-                            .replace("(", "\(")
-                            .replace(")", "\)")
+                            cue_path.replace(" ", r"\ ")
+                            .replace("'", r"\\'")
+                            .replace("(", r"\(")
+                            .replace(")", r"\)")
                         )
                         cmd = f"flacon -s {escaped_cue_path}"
                         print(cmd)
@@ -587,15 +585,13 @@ def what_to_do_with_cue(directory):
                             if os.path.exists(cue_audio_file_path):
                                 send2trash(cue_audio_file_path)
                                 print(
-                                    "Successfully deleted audio source file: "
-                                    f"{cue_audio_file}"
+                                    f"Successfully deleted audio source file: {cue_audio_file}"
                                 )
                                 send2trash(cue_path)
                                 print(f"Successfully deleted cue file: {cue_file}")
                             else:
                                 print(
-                                    f"Couldn't find audio file '{cue_audio_file}' "
-                                    f"specified in '{cue_file}'"
+                                    f"Couldn't find audio file '{cue_audio_file}' specified in '{cue_file}'"
                                 )
                                 for audio_file in cue_dir.audio_files:
                                     audio_file_path = os.path.join(
@@ -603,8 +599,7 @@ def what_to_do_with_cue(directory):
                                     )
                                     send2trash(audio_file_path)
                                     print(
-                                        "Successfully deleted audio source file: "
-                                        f"{audio_file}"
+                                        f"Successfully deleted audio source file: {audio_file}"
                                     )
                                     send2trash(cue_path)
                                     print(f"Successfully deleted cue file: {cue_file}")
