@@ -1,11 +1,7 @@
 from pathlib import Path
-from typing import (
-    List,
-    Optional,
-)
 
 
-def new_art_file_name(filename: str) -> Optional[List[str]]:
+def new_art_file_name(filename: str) -> list[str] | None:
     """Suggest a file name change.
 
     Returns a sorted list of file name suggestions.

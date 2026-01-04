@@ -19,7 +19,7 @@ class CueParser:
     """Simple Cue Sheet file parser."""
 
     def __init__(self, cue_file):
-        self._context_global = {
+        self._context_global: dict[str, str | None] = {
             "PERFORMER": "Unknown",
             "SONGWRITER": None,
             "ALBUM": "Unknown",
@@ -28,18 +28,18 @@ class CueParser:
             "FILE": None,
             "COMMENT": None,
         }
-        self._context_tracks = []
+        self._context_tracks: list[dict[str, str]] = []
 
         self._current_context = self._context_global
         with open(cue_file, "rb") as file:
             self.encoding = chardet.detect(file.read())["encoding"]
         try:
-            with open(cue_file, "r", encoding=self.encoding) as f:
+            with open(file=cue_file, mode="r", encoding=self.encoding) as f:
                 lines = f.readlines()
-        except UnicodeDecodeError:
-            raise UnicodeDecodeError(
+        except UnicodeDecodeError as e:
+            raise UnicodeError(
                 "Unable to read data from .cue file. Please set correct encoding."
-            )
+            ) from e
 
         for line in lines:
             if line.strip():

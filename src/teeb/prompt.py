@@ -4,7 +4,7 @@ from teeb.ansii import (
 )
 
 
-def prompt(question: str, options: list) -> str:
+def prompt(question: str, options: list[str]) -> str:
     """Print colorful prompt.
 
     returns: a lower case decision option key.

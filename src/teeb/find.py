@@ -1,22 +1,16 @@
 import logging
 import os
 from pathlib import Path
-from typing import (
-    Dict,
-    List,
-    Optional,
-    Tuple,
-)
 
 import teeb.data_type
 import teeb.default
 import teeb.suggest
 
 
-def extra_files(directory: str) -> List[str]:
+def extra_files(directory: str) -> list[str]:
     """Find extra files, like .accurip .m3u"""
-    result = []
-    for sub_dir, directories, files in os.walk(directory):
+    result: list[str] = []
+    for sub_dir, _, files in os.walk(directory):
         for filename in files:
             extension = Path(filename).suffix[1:]
             if extension.lower() in teeb.default.ignored_extensions:
@@ -25,9 +19,9 @@ def extra_files(directory: str) -> List[str]:
     return result
 
 
-def extra_text_files(directory: str) -> List[str]:
+def extra_text_files(directory: str) -> list[str]:
     """Find extra text files, like: dr_analysis.txt foo_dr.txt"""
-    result = []
+    result: list[str] = []
     for sub_dir, directories, files in os.walk(directory):
         for filename in files:
             if filename.lower() in teeb.default.redundant_text_files:
@@ -36,9 +30,9 @@ def extra_text_files(directory: str) -> List[str]:
     return result
 
 
-def files_with_upper_case_extension(directory: str) -> List[str]:
+def files_with_upper_case_extension(directory: str) -> list[str]:
     """Find files with mixed or uppercase extension, e.g. .Flac .APE .Jpeg .NFO"""
-    result = []
+    result: list[str] = []
     for sub_dir, directories, files in os.walk(directory):
         for filename in files:
             extension = Path(filename).suffix[1:]
@@ -48,9 +42,9 @@ def files_with_upper_case_extension(directory: str) -> List[str]:
     return result
 
 
-def non_audio_files_with_upper_case_characters(directory: str) -> List[str]:
+def non_audio_files_with_upper_case_characters(directory: str) -> list[str]:
     """Find non-audio files with mixed or upper case extension, e.g. .Jpeg"""
-    result = []
+    result: list[str] = []
     for sub_dir, directories, files in os.walk(directory):
         for filename in files:
             extension = Path(filename).suffix[1:]
@@ -62,9 +56,9 @@ def non_audio_files_with_upper_case_characters(directory: str) -> List[str]:
     return result
 
 
-def files_to_change_extension(directory: str) -> List[str]:
+def files_to_change_extension(directory: str) -> list[str]:
     """Find files which need their extension changed, e.g. from jpeg to jpg"""
-    result = []
+    result: list[str] = []
     for sub_dir, directories, files in os.walk(directory):
         for filename in files:
             extension = Path(filename).suffix[1:]
@@ -74,9 +68,9 @@ def files_to_change_extension(directory: str) -> List[str]:
     return result
 
 
-def directory_and_file_paths_with_spaces(directory: str) -> List[str]:
+def directory_and_file_paths_with_spaces(directory: str) -> list[str]:
     """Find directory and file paths containing spaces."""
-    result = []
+    result: list[str] = []
     for sub_dir, directories, files in os.walk(directory):
         for filename in files:
             filepath = os.path.join(sub_dir, filename)
@@ -85,10 +79,10 @@ def directory_and_file_paths_with_spaces(directory: str) -> List[str]:
     return result
 
 
-def album_art_files_to_convert(directory: str) -> List[str]:
+def album_art_files_to_convert(directory: str) -> list[str]:
     """Find album art files that should be converted to preferred type."""
-    result = []
-    for sub_dir, directories, files in os.walk(directory):
+    result: list[str] = []
+    for sub_dir, _, files in os.walk(directory):
         for filename in files:
             extension = Path(filename).suffix[1:]
             if extension.lower() in teeb.default.album_art_extentions_to_convert:
@@ -99,10 +93,10 @@ def album_art_files_to_convert(directory: str) -> List[str]:
 
 def album_art_files(
     directory: str,
-) -> List[Optional[Tuple[str, Optional[List[str]]]]]:
+) -> list[tuple[str, list[str] | None] | None]:
     """Find all jpg album art that might need a file name change."""
-    result = []
-    for sub_dir, _, files in os.walk(directory):
+    result: list[tuple[str, list[str] | None] | None] = []
+    for _, _, files in os.walk(directory):
         for file in files:
             extension = Path(file).suffix[1:]
             filename = Path(file).name
@@ -113,9 +107,9 @@ def album_art_files(
     return result
 
 
-def cue_files_and_audio_files(directory: str) -> List[teeb.data_type.CuedAlbum]:
+def cue_files_and_audio_files(directory: str) -> list[teeb.data_type.CuedAlbum]:
     """Find albums containing CUE files and audio files."""
-    result = []
+    result: list[teeb.data_type.CuedAlbum] = []
     for sub_dir, _, files in os.walk(directory):
         cues = [f for f in files if Path(f).suffix[1:] == "cue"]
         if cues:
@@ -133,11 +127,11 @@ def cue_files_and_audio_files(directory: str) -> List[teeb.data_type.CuedAlbum]:
     return result
 
 
-def empty_directories(directory: str) -> List[str]:
+def empty_directories(directory: str) -> list[str]:
     """Return a list of empty directories found in given directory.
     See https://docs.python.org/3/library/os.html#os.listdir
     """
-    result = []
+    result: list[str] = []
     for sub_dir, _, files in os.walk(directory):
         if not files:
             child_directories = [
@@ -150,7 +144,9 @@ def empty_directories(directory: str) -> List[str]:
     return sorted(result)
 
 
-def nested_album_art(directory: str) -> Dict[str, List[str]]:
+def nested_album_art(
+    directory: str,
+) -> dict[str, list[str | dict[str, str | Path | None]]]:
     """Find nested album art directories.
 
     People organise their albums and album art in many different ways.
@@ -240,11 +236,11 @@ def nested_album_art(directory: str) -> Dict[str, List[str]]:
             └── cover.jpg
     """
 
-    def is_not_preferred_case(path, parent, name) -> bool:
+    def is_not_preferred_case(path: Path, parent: Path, name: str) -> bool:
         is_file = os.path.isfile(os.path.join(parent, name))
         return not is_file and name != path.name
 
-    result = {
+    result: dict[str, list[str | dict[str, str | Path | None]]] = {
         "case1": [],
         "case2": [],
     }
@@ -278,8 +274,7 @@ def nested_album_art(directory: str) -> Dict[str, List[str]]:
                     )
                     if parent_audio_files:
                         logging.debug(
-                            "CASE #1: There are audio files in album art parent "
-                            f"directory: {parent}"
+                            f"CASE #1: There are audio files in album art parent directory: {parent}"
                         )
                         item = {
                             "art_dir": sub_dir,
@@ -295,8 +290,7 @@ def nested_album_art(directory: str) -> Dict[str, List[str]]:
                     ]
                     if parent_directories:
                         logging.debug(
-                            "CASE #2: There are ONLY directories in album art parent "
-                            f"directory: {parent} -> {parent_directories}"
+                            f"CASE #2: There are ONLY directories in album art parent directory: {parent} -> {parent_directories}"
                         )
                         item = {
                             "art_dir": sub_dir,

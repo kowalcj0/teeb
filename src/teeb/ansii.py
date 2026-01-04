@@ -29,8 +29,8 @@ class ANSIIStyle:
     see: https://en.wikipedia.org/wiki/ANSI_escape_code
     """
 
-    start = ""
-    end = ""
+    start: str = ""
+    end: str = ""
 
     def __init__(
         self,
@@ -39,9 +39,9 @@ class ANSIIStyle:
         italic: bool = False,
         underline: bool = False,
         strikethrough: bool = False,
-        color: ANSIIColor = None,
+        color: ANSIIColor,
     ):
-        tmp = []
+        tmp: list[str] = []
         if bold:
             tmp.append("1")
         if italic:
