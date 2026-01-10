@@ -9,6 +9,17 @@ dependencies = [
     "send2trash",
     "wand",
 ]
+[project.scripts]
+teeb = "teeb.__main__:main"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["*"]
+exclude = ["tests*"]
 
 [dependency-groups]
 dev = [
