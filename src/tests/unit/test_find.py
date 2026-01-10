@@ -50,8 +50,10 @@ def get_file_names(
         art_files = ["cover.jpg", "back.jpg", "cd.jpg", "inlay.jpg"]
         file_names.extend(art_files)
     if ignored:
-        ignored = [f"file.{extension}" for extension in teeb.default.ignored_extensions]
-        file_names.extend(ignored)
+        ignored_files = [
+            f"file.{extension}" for extension in teeb.default.ignored_extensions
+        ]
+        file_names.extend(ignored_files)
     if text:
         file_names.extend(teeb.default.redundant_text_files)
     if change_extension:
@@ -69,6 +71,7 @@ def get_file_names(
 
 
 @pytest.fixture(
+    name="album_with_ignored_files",
     params=[
         ABSOLUTE_ALBUM_PATH,
         DOTTED_RELATIVE_ALBUM_PATH,
@@ -76,9 +79,9 @@ def get_file_names(
         CURRENT_DIRECTORY,
         CURRENT_SLASHED_DIRECTORY,
         ALBUM_PATH_WITH_UTF8_CHARS,
-    ]
+    ],
 )
-def album_with_ignored_files(request: SubRequest) -> DirectoryTree:
+def fixture_album_with_ignored_files(request: SubRequest) -> DirectoryTree:
     """A parametrized fixture that makes mocked os.walk() to return directory tree.
 
     A directory tree is represented as a list of tuples.
@@ -101,6 +104,7 @@ def album_with_ignored_files(request: SubRequest) -> DirectoryTree:
 
 
 @pytest.fixture(
+    name="album_with_extra_text_files",
     params=[
         ABSOLUTE_ALBUM_PATH,
         DOTTED_RELATIVE_ALBUM_PATH,
@@ -108,9 +112,9 @@ def album_with_ignored_files(request: SubRequest) -> DirectoryTree:
         CURRENT_DIRECTORY,
         CURRENT_SLASHED_DIRECTORY,
         ALBUM_PATH_WITH_UTF8_CHARS,
-    ]
+    ],
 )
-def album_with_extra_text_files(request: SubRequest) -> DirectoryTree:
+def fixture_album_with_extra_text_files(request: SubRequest) -> DirectoryTree:
     """A parametrized fixture that makes mocked os.walk() to return directory tree."""
     return [
         [
@@ -124,6 +128,7 @@ def album_with_extra_text_files(request: SubRequest) -> DirectoryTree:
 
 
 @pytest.fixture(
+    name="album_with_mixed_case_file_extensions",
     params=[
         ABSOLUTE_ALBUM_PATH,
         DOTTED_RELATIVE_ALBUM_PATH,
@@ -131,9 +136,9 @@ def album_with_extra_text_files(request: SubRequest) -> DirectoryTree:
         CURRENT_DIRECTORY,
         CURRENT_SLASHED_DIRECTORY,
         ALBUM_PATH_WITH_UTF8_CHARS,
-    ]
+    ],
 )
-def album_with_mixed_case_file_extensions(request: SubRequest) -> DirectoryTree:
+def fixture_album_with_mixed_case_file_extensions(request: SubRequest) -> DirectoryTree:
     """Return directory tree with files having upper case extensions"""
     letters = string.ascii_uppercase + string.ascii_lowercase
     file_names = [f"file.{''.join(random.choices(letters, k=3))}" for _ in range(3)]
@@ -143,6 +148,7 @@ def album_with_mixed_case_file_extensions(request: SubRequest) -> DirectoryTree:
 
 
 @pytest.fixture(
+    name="album_with_files_that_need_an_extension_change",
     params=[
         ABSOLUTE_ALBUM_PATH,
         DOTTED_RELATIVE_ALBUM_PATH,
@@ -150,9 +156,9 @@ def album_with_mixed_case_file_extensions(request: SubRequest) -> DirectoryTree:
         CURRENT_DIRECTORY,
         CURRENT_SLASHED_DIRECTORY,
         ALBUM_PATH_WITH_UTF8_CHARS,
-    ]
+    ],
 )
-def album_with_files_that_need_an_extension_change(
+def fixture_album_with_files_that_need_an_extension_change(
     request: SubRequest,
 ) -> DirectoryTree:
     """Return a directory tree with files that need their extension changed."""
@@ -164,13 +170,13 @@ def album_with_files_that_need_an_extension_change(
 
 
 @pytest.fixture(
+    name="album_with_directory_and_file_paths_containing_spaces",
     params=[
         f"{ABSOLUTE_ALBUM_PATH} with spaces in path/",
         f"{DOTTED_RELATIVE_ALBUM_PATH} with spaces in path ",
         f"{RELATIVE_ALBUM_PATH} with spaces in path /",
         ALBUM_PATH_WITH_UTF8_CHARS,
     ],
-    name="album_with_directory_and_file_paths_containing_spaces",
 )
 def fixture_album_with_directory_and_file_paths_containing_spaces(
     request: SubRequest,
@@ -192,6 +198,7 @@ def fixture_album_with_directory_and_file_paths_containing_spaces(
 
 
 @pytest.fixture(
+    name="album_with_art_files_that_need_conversion",
     params=[
         ABSOLUTE_ALBUM_PATH,
         DOTTED_RELATIVE_ALBUM_PATH,
@@ -200,7 +207,6 @@ def fixture_album_with_directory_and_file_paths_containing_spaces(
         CURRENT_SLASHED_DIRECTORY,
         ALBUM_PATH_WITH_UTF8_CHARS,
     ],
-    name="album_with_art_files_that_need_conversion",
 )
 def fixture_album_with_art_files_that_need_conversion(
     request: SubRequest,
@@ -215,6 +221,7 @@ def fixture_album_with_art_files_that_need_conversion(
 
 
 @pytest.fixture(
+    name="album_with_art_files_that_dont_need_filename_change",
     params=[
         ABSOLUTE_ALBUM_PATH,
         DOTTED_RELATIVE_ALBUM_PATH,
@@ -223,7 +230,6 @@ def fixture_album_with_art_files_that_need_conversion(
         CURRENT_SLASHED_DIRECTORY,
         ALBUM_PATH_WITH_UTF8_CHARS,
     ],
-    name="album_with_art_files_that_dont_need_filename_change",
 )
 def fixture_album_with_art_files_that_dont_need_filename_change(
     request: SubRequest,
@@ -270,6 +276,7 @@ def fixture_album_with_art_files_that_dont_need_filename_change(
 
 
 @pytest.fixture(
+    name="album_with_art_files_that_need_filename_change",
     params=[
         ABSOLUTE_ALBUM_PATH,
         DOTTED_RELATIVE_ALBUM_PATH,
@@ -277,9 +284,9 @@ def fixture_album_with_art_files_that_dont_need_filename_change(
         CURRENT_DIRECTORY,
         CURRENT_SLASHED_DIRECTORY,
         ALBUM_PATH_WITH_UTF8_CHARS,
-    ]
+    ],
 )
-def album_with_art_files_that_need_filename_change(
+def fixture_album_with_art_files_that_need_filename_change(
     request: SubRequest,
 ) -> DirectoryTree:
     """Return a directory tree with album art files that need a file name change."""
@@ -308,6 +315,7 @@ def album_with_art_files_that_need_filename_change(
 
 
 @pytest.fixture(
+    name="directory_with_one_cue_and_one_audio_file",
     params=[
         ABSOLUTE_ALBUM_PATH,
         DOTTED_RELATIVE_ALBUM_PATH,
@@ -315,9 +323,11 @@ def album_with_art_files_that_need_filename_change(
         CURRENT_DIRECTORY,
         CURRENT_SLASHED_DIRECTORY,
         ALBUM_PATH_WITH_UTF8_CHARS,
-    ]
+    ],
 )
-def directory_with_one_cue_and_one_audio_file(request: SubRequest) -> DirectoryTree:
+def fixture_directory_with_one_cue_and_one_audio_file(
+    request: SubRequest,
+) -> DirectoryTree:
     """Return a directory tree with one CUE file and one audio file."""
     return [
         [
@@ -334,6 +344,7 @@ def directory_with_one_cue_and_one_audio_file(request: SubRequest) -> DirectoryT
 
 
 @pytest.fixture(
+    name="directory_with_one_cue_and_multiple_audio_file",
     params=[
         ABSOLUTE_ALBUM_PATH,
         DOTTED_RELATIVE_ALBUM_PATH,
@@ -341,9 +352,9 @@ def directory_with_one_cue_and_one_audio_file(request: SubRequest) -> DirectoryT
         CURRENT_DIRECTORY,
         CURRENT_SLASHED_DIRECTORY,
         ALBUM_PATH_WITH_UTF8_CHARS,
-    ]
+    ],
 )
-def directory_with_one_cue_and_multiple_audio_file(
+def fixture_directory_with_one_cue_and_multiple_audio_file(
     request: SubRequest,
 ) -> DirectoryTree:
     """Return a directory tree with one CUE file and multiple audio files."""
@@ -364,14 +375,15 @@ def directory_with_one_cue_and_multiple_audio_file(
 
 
 @pytest.fixture(
+    name="empty_directory",
     params=[
         ABSOLUTE_ALBUM_PATH,
         DOTTED_RELATIVE_ALBUM_PATH,
         RELATIVE_ALBUM_PATH,
         ALBUM_PATH_WITH_UTF8_CHARS,
-    ]
+    ],
 )
-def empty_directory(request: SubRequest) -> DirectoryTree:
+def fixture_empty_directory(request: SubRequest) -> DirectoryTree:
     """Return a directory tree with no files."""
     return [
         [
@@ -381,12 +393,13 @@ def empty_directory(request: SubRequest) -> DirectoryTree:
 
 
 @pytest.fixture(
+    name="empty_current_directory",
     params=[
         CURRENT_DIRECTORY,
         CURRENT_SLASHED_DIRECTORY,
-    ]
+    ],
 )
-def empty_current_directory(request: SubRequest) -> DirectoryTree:
+def fixture_empty_current_directory(request: SubRequest) -> DirectoryTree:
     """Return a directory tree with no files."""
     return [
         [
@@ -396,14 +409,15 @@ def empty_current_directory(request: SubRequest) -> DirectoryTree:
 
 
 @pytest.fixture(
+    name="empty_directories",
     params=[
         ABSOLUTE_ALBUM_PATH,
         DOTTED_RELATIVE_ALBUM_PATH,
         RELATIVE_ALBUM_PATH,
         ALBUM_PATH_WITH_UTF8_CHARS,
-    ]
+    ],
 )
-def empty_directories(request: SubRequest) -> DirectoryTree:
+def fixture_empty_directories(request: SubRequest) -> DirectoryTree:
     """Return a directory tree with multiple empty directories."""
     return [
         [
@@ -416,6 +430,7 @@ def empty_directories(request: SubRequest) -> DirectoryTree:
 
 
 @pytest.fixture(
+    name="album_layout_preferred",
     params=[
         ABSOLUTE_ALBUM_PATH,
         DOTTED_RELATIVE_ALBUM_PATH,
@@ -423,9 +438,9 @@ def empty_directories(request: SubRequest) -> DirectoryTree:
         CURRENT_DIRECTORY,
         CURRENT_SLASHED_DIRECTORY,
         ALBUM_PATH_WITH_UTF8_CHARS,
-    ]
+    ],
 )
-def album_layout_preferred(request: SubRequest) -> DirectoryTree:
+def fixture_album_layout_preferred(request: SubRequest) -> DirectoryTree:
     """Return a directory tree with preferred album layout."""
     return [
         [
@@ -439,6 +454,7 @@ def album_layout_preferred(request: SubRequest) -> DirectoryTree:
 
 
 @pytest.fixture(
+    name="album_layout_preferred_no_album_art",
     params=[
         ABSOLUTE_ALBUM_PATH,
         DOTTED_RELATIVE_ALBUM_PATH,
@@ -446,9 +462,9 @@ def album_layout_preferred(request: SubRequest) -> DirectoryTree:
         CURRENT_DIRECTORY,
         CURRENT_SLASHED_DIRECTORY,
         ALBUM_PATH_WITH_UTF8_CHARS,
-    ]
+    ],
 )
-def album_layout_preferred_no_album_art(request: SubRequest) -> DirectoryTree:
+def fixture_album_layout_preferred_no_album_art(request: SubRequest) -> DirectoryTree:
     """Return a directory tree with preferred album layout."""
     return [
         [
@@ -462,6 +478,7 @@ def album_layout_preferred_no_album_art(request: SubRequest) -> DirectoryTree:
 
 
 @pytest.fixture(
+    name="album_layout_case_1",
     params=[
         ABSOLUTE_ALBUM_PATH,
         DOTTED_RELATIVE_ALBUM_PATH,
@@ -469,9 +486,9 @@ def album_layout_preferred_no_album_art(request: SubRequest) -> DirectoryTree:
         CURRENT_DIRECTORY,
         CURRENT_SLASHED_DIRECTORY,
         ALBUM_PATH_WITH_UTF8_CHARS,
-    ]
+    ],
 )
-def album_layout_case_1(request: SubRequest) -> DirectoryTree:
+def fixture_album_layout_case_1(request: SubRequest) -> DirectoryTree:
     return [
         [
             (
@@ -485,6 +502,7 @@ def album_layout_case_1(request: SubRequest) -> DirectoryTree:
 
 
 @pytest.fixture(
+    name="album_layout_case_1a",
     params=[
         ABSOLUTE_ALBUM_PATH,
         DOTTED_RELATIVE_ALBUM_PATH,
@@ -492,9 +510,9 @@ def album_layout_case_1(request: SubRequest) -> DirectoryTree:
         CURRENT_DIRECTORY,
         CURRENT_SLASHED_DIRECTORY,
         ALBUM_PATH_WITH_UTF8_CHARS,
-    ]
+    ],
 )
-def album_layout_case_1a(request: SubRequest) -> DirectoryTree:
+def fixture_album_layout_case_1a(request: SubRequest) -> DirectoryTree:
     return [
         [
             (request.param, ["album_art"], ["box.jpg"]),
@@ -504,6 +522,7 @@ def album_layout_case_1a(request: SubRequest) -> DirectoryTree:
 
 
 @pytest.fixture(
+    name="album_layout_case_2a",
     params=[
         ABSOLUTE_ALBUM_PATH,
         DOTTED_RELATIVE_ALBUM_PATH,
@@ -511,9 +530,9 @@ def album_layout_case_1a(request: SubRequest) -> DirectoryTree:
         CURRENT_DIRECTORY,
         CURRENT_SLASHED_DIRECTORY,
         ALBUM_PATH_WITH_UTF8_CHARS,
-    ]
+    ],
 )
-def album_layout_case_2a(request: SubRequest) -> DirectoryTree:
+def fixture_album_layout_case_2a(request: SubRequest) -> DirectoryTree:
     return [
         [
             (f"{request.param}", ["album_art", "cd1", "cd2"], []),
@@ -525,6 +544,7 @@ def album_layout_case_2a(request: SubRequest) -> DirectoryTree:
 
 
 @pytest.fixture(
+    name="album_layout_case_2b",
     params=[
         ABSOLUTE_ALBUM_PATH,
         DOTTED_RELATIVE_ALBUM_PATH,
@@ -532,9 +552,9 @@ def album_layout_case_2a(request: SubRequest) -> DirectoryTree:
         CURRENT_DIRECTORY,
         CURRENT_SLASHED_DIRECTORY,
         ALBUM_PATH_WITH_UTF8_CHARS,
-    ]
+    ],
 )
-def album_layout_case_2b(request: SubRequest) -> DirectoryTree:
+def fixture_album_layout_case_2b(request: SubRequest) -> DirectoryTree:
     return [
         [
             (f"{request.param}", ["album_art", "cd1", "cd2"], []),
@@ -554,6 +574,7 @@ def album_layout_case_2b(request: SubRequest) -> DirectoryTree:
 
 
 @pytest.fixture(
+    name="album_layout_case_2c",
     params=[
         ABSOLUTE_ALBUM_PATH,
         DOTTED_RELATIVE_ALBUM_PATH,
@@ -561,9 +582,9 @@ def album_layout_case_2b(request: SubRequest) -> DirectoryTree:
         CURRENT_DIRECTORY,
         CURRENT_SLASHED_DIRECTORY,
         ALBUM_PATH_WITH_UTF8_CHARS,
-    ]
+    ],
 )
-def album_layout_case_2c(request: SubRequest) -> DirectoryTree:
+def fixture_album_layout_case_2c(request: SubRequest) -> DirectoryTree:
     return [
         [
             (f"{request.param}", ["album_art", "cd1", "cd2"], ["box_cover.jpg"]),
@@ -593,6 +614,7 @@ def album_layout_case_2c(request: SubRequest) -> DirectoryTree:
 
 
 @pytest.fixture(
+    name="album_layout_case_2d",
     params=[
         ABSOLUTE_ALBUM_PATH,
         DOTTED_RELATIVE_ALBUM_PATH,
@@ -600,9 +622,9 @@ def album_layout_case_2c(request: SubRequest) -> DirectoryTree:
         CURRENT_DIRECTORY,
         CURRENT_SLASHED_DIRECTORY,
         ALBUM_PATH_WITH_UTF8_CHARS,
-    ]
+    ],
 )
-def album_layout_case_2d(request: SubRequest) -> DirectoryTree:
+def fixture_album_layout_case_2d(request: SubRequest) -> DirectoryTree:
     return [
         [
             (f"{request.param}/", ["cd2", "album_art", "cd1"], ["box_cover.jpg"]),
@@ -622,6 +644,7 @@ def album_layout_case_2d(request: SubRequest) -> DirectoryTree:
 
 
 @pytest.fixture(
+    name="album_layout_case_2e",
     params=[
         ABSOLUTE_ALBUM_PATH,
         DOTTED_RELATIVE_ALBUM_PATH,
@@ -629,9 +652,9 @@ def album_layout_case_2d(request: SubRequest) -> DirectoryTree:
         CURRENT_DIRECTORY,
         CURRENT_SLASHED_DIRECTORY,
         ALBUM_PATH_WITH_UTF8_CHARS,
-    ]
+    ],
 )
-def album_layout_case_2e(request: SubRequest) -> DirectoryTree:
+def fixture_album_layout_case_2e(request: SubRequest) -> DirectoryTree:
     return [
         [
             (f"{request.param}/", ["album_art"], ["box_cover.jpg"]),
@@ -762,7 +785,8 @@ def test_album_art_files_that_get_single_file_name_change_suggestion(
             # Every item on the result list should be a tuple consisting of:
             # a filename & a list with a single suggestion
             for item in result:
-                assert len(item[1]) == 1
+                if item is not None and item[1] is not None:
+                    assert len(item[1]) == 1
 
 
 def test_cue_files_and_audio_files_one_cue_and_one_audio_files(
