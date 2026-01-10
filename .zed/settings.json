@@ -1,10 +1,19 @@
 {
-    "lsp": {
-        "basedpyright": {
-            "binary": {
-                "path": ".venv/bin/basedpyright-langserver",
-                "arguments": ["--stdio"]
-            }
-        }
+  "languages": {
+    "Python": {
+      "language_servers": [
+        "ty",
+        "!basedpyright",
+        "..."
+      ]
     }
+  },
+  "terminal": {
+    "detect_venv": {
+      "on": {
+        "directories": [".env", "env", ".venv", "venv"],
+        "activate_script": "default"
+      }
+    }
+  }
 }
