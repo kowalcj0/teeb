@@ -7,10 +7,6 @@ import os
 import random
 import string
 from pathlib import PosixPath
-from typing import (
-    List,
-    Tuple,
-)
 from unittest import mock
 
 import pytest
@@ -20,7 +16,7 @@ import teeb.default
 import teeb.find
 
 # Type for directory tree structure returned by os.walk()
-DirectoryTree = List[List[Tuple[str, List, List[str]]]]
+DirectoryTree = list[list[tuple[str, list, list[str]]]]
 
 ABSOLUTE_ALBUM_PATH = "/absolute/path/to/album"
 DOTTED_RELATIVE_ALBUM_PATH = "./album"
@@ -39,7 +35,7 @@ def get_file_names(
     text: bool = False,
     change_extension: bool = False,
     art_to_convert: bool = False,
-) -> List[str]:
+) -> list[str]:
     if add_all:
         audio = art = ignored = text = change_extension = art_to_convert = True
 
@@ -173,9 +169,10 @@ def album_with_files_that_need_an_extension_change(
         f"{DOTTED_RELATIVE_ALBUM_PATH} with spaces in path ",
         f"{RELATIVE_ALBUM_PATH} with spaces in path /",
         ALBUM_PATH_WITH_UTF8_CHARS,
-    ]
+    ],
+    name="album_with_directory_and_file_paths_containing_spaces",
 )
-def album_with_directory_and_file_paths_containing_spaces(
+def fixture_album_with_directory_and_file_paths_containing_spaces(
     request: SubRequest,
 ) -> DirectoryTree:
     """Return a directory tree with directory and file paths containing spaces."""
@@ -202,9 +199,12 @@ def album_with_directory_and_file_paths_containing_spaces(
         CURRENT_DIRECTORY,
         CURRENT_SLASHED_DIRECTORY,
         ALBUM_PATH_WITH_UTF8_CHARS,
-    ]
+    ],
+    name="album_with_art_files_that_need_conversion",
 )
-def album_with_art_files_that_need_conversion(request: SubRequest) -> DirectoryTree:
+def fixture_album_with_art_files_that_need_conversion(
+    request: SubRequest,
+) -> DirectoryTree:
     """Return a directory tree with album art files that need to be converted from e.g.
     bmp to jpg."""
     return [
@@ -222,9 +222,10 @@ def album_with_art_files_that_need_conversion(request: SubRequest) -> DirectoryT
         CURRENT_DIRECTORY,
         CURRENT_SLASHED_DIRECTORY,
         ALBUM_PATH_WITH_UTF8_CHARS,
-    ]
+    ],
+    name="album_with_art_files_that_dont_need_filename_change",
 )
-def album_with_art_files_that_dont_need_filename_change(
+def fixture_album_with_art_files_that_dont_need_filename_change(
     request: SubRequest,
 ) -> DirectoryTree:
     """Return a directory tree with album art files that need a file name change."""
@@ -739,8 +740,8 @@ def test_album_art_files_to_convert(album_with_art_files_that_need_conversion):
 
 
 def test_album_art_files_that_dont_need_file_name_change(
-    album_with_art_files_that_dont_need_filename_change,
-):
+    album_with_art_files_that_dont_need_filename_change: DirectoryTree,
+) -> None:
     """An album art file with correct name shouldn't need a file name change."""
     for instance in album_with_art_files_that_dont_need_filename_change:
         with mock.patch("os.walk", return_value=instance):

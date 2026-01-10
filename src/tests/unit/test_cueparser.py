@@ -49,7 +49,7 @@ def test_multiple_files_multiple_tracks(multiple_files_multiple_tracks):
     ],
 )
 def test_text_encoding_autodetection(filename, encoding):
-    path = os.path.join("tests", "files", filename)
+    path = os.path.join("src", "tests", "files", filename)
     cue = CueParser(path)
     assert cue.encoding == encoding
 
@@ -68,6 +68,6 @@ def test_text_encoding_autodetection(filename, encoding):
     ],
 )
 def test_number_of_parsed_tracks(filename, number_of_tracks):
-    path = os.path.join("tests", "files", filename)
+    path = os.path.join("src", "tests", "files", filename)
     cue = CueParser(path)
     assert len(cue.tracks) == number_of_tracks
