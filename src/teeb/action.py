@@ -442,12 +442,12 @@ def what_to_do_with_cue(directory: str) -> None:
                                     )
                                     for audio_file in cue_dir.audio_files:
                                         delete_entry_audio_file = prompt(
-                                            "Delete '{audio_file}' and source audio?",
+                                            f"Delete '{audio_file}' and source audio?",
                                             ["d", "s", "q"],
                                         )
                                         if delete_entry_audio_file == "y":
                                             audio_file_path = os.path.join(
-                                                cue_dir, audio_file
+                                                cue_dir.dir, audio_file
                                             )
                                             send2trash(audio_file_path)
                                             print(
