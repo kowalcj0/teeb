@@ -1,7 +1,7 @@
 from pathlib import Path
 
 
-def new_art_file_name(filename: str) -> list[str] | None:
+def new_art_file_name(filename: str) -> list[str]:
     """Suggest a file name change.
 
     Returns a sorted list of file name suggestions.
@@ -37,13 +37,13 @@ def new_art_file_name(filename: str) -> list[str] | None:
     ]
 
     file_path = Path(filename)
-    name = file_path.name
+    name = file_path.stem
     extension = Path(file_path).suffix.lower()
 
     if name in clean_names:
-        return None
+        return []
 
-    suggestions = set()
+    suggestions: set[str] = set()
     if "inlay" in filename:
         suggestions.add("inlay")
     if "przod" in filename:
@@ -73,6 +73,6 @@ def new_art_file_name(filename: str) -> list[str] | None:
     if "back" in filename:
         suggestions.add("back")
 
-    suggestions = {f"{name}{extension}" for name in suggestions}
+    suggestions: set[str] = {f"{name}{extension}" for name in suggestions}
 
-    return sorted(list(suggestions)) if suggestions.difference({filename}) else None
+    return sorted(list(suggestions))
